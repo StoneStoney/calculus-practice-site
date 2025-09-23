@@ -5,10 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculus Practice</title>
-    <!-- Link to your combined style.css in the 'static' folder -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    <!-- 1. Configure and load MathJax -->
     <script>
         MathJax = {
             tex: {
@@ -24,24 +22,18 @@
 </head>
 
 <body>
-    <!-- THIS IS THE HTML STRUCTURE THAT WAS MISSING -->
     <div class="container">
         <h1>Calculus Practice Midterm Review</h1>
         <p>Select a category to practice problems. Type your answer and click "Submit" to check your work.</p>
 
         <div id="category-filter">
             <button class="filter-button active" data-category="all">All Categories</button>
-            <!-- Category buttons will be inserted here by JavaScript -->
         </div>
 
         <div id="problems-display">
-            <!-- Problems will be inserted here by JavaScript -->
             <p class="loading-message">Loading problems...</p>
         </div>
     </div>
-    <!-- END OF THE MISSING HTML STRUCTURE -->
-
-    <!-- Your JavaScript code goes here, inside the body but after the HTML content -->
     <script>
         let allProblemsData = [];
 
