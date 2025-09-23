@@ -1,0 +1,1209 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts} % For mathbb if needed
+
+% --- Document Information for Title Page ---
+\title{Midterm 1 Calculus Practice (Parser-Friendly Version)}
+\author{Hanshi Yang}
+\date{\today}
+
+\pagenumbering{gobble} % Hides all page numbers
+
+% --- Custom Environments for Parsing ---
+% This structure allows a program to easily read and separate the data
+\newenvironment{problem}[2]{%
+  \par\vspace{1em}\noindent
+  % #1 is Category, #2 is Problem Statement
+  \textbf{Category:} #1 \par\noindent
+  \textbf{Problem:} #2 \par\noindent
+}{%
+  \par\vspace{1em}
+}
+
+\newcommand{\solution}[1]{%
+  \textbf{Solution:} #1 \par
+}
+
+\newcommand{\hint}[1]{%
+  \textbf{Hint:} #1 \par
+}
+
+
+\begin{document}
+
+% The title and summary pages are for visual/PDF output,
+% our parser will ignore them and only look for the 'problem' environments.
+\maketitle
+\newpage
+
+\section*{Summary}
+Hello again! This packet, unlike last time, is built mainly to be review for the tools used to solve derivatives. I know, very very sad :( . Anyways, I put in a ton of trig practice + a section which is built upon trig simplification to get a bit of that and a bit of this. You know how it goes. Yayay. Good luck!
+\newpage
+
+% ---------------------------------------------------
+% ----------- PARSABLE PROBLEMS START HERE ----------
+% ---------------------------------------------------
+
+\section*{Parsed Problems}
+
+% --- By Definition of Derivative ---
+
+\begin{problem}{By Definition of Derivative}{Find the derivative of \(f(x) = x^2\)}
+    \hint{Use the formula \( \lim_{h \to 0} \frac{f(x+h) - f(x)}{h} \). Expand \((x+h)^2\).}
+    \solution{\(f'(x) = \lim_{h \to 0} \frac{(x+h)^2 - x^2}{h} = \lim_{h \to 0} \frac{x^2+2xh+h^2-x^2}{h} = \lim_{h \to 0} (2x+h) = 2x\)}
+\end{problem}
+
+\begin{problem}{By Definition of Derivative}{Find the derivative of \(g(x) = x^3\)}
+    \hint{Expand \((x+h)^3 = x^3 + 3x^2h + 3xh^2 + h^3\).}
+    \solution{\(g'(x) = \lim_{h \to 0} \frac{(x+h)^3 - x^3}{h} = \lim_{h \to 0} \frac{3x^2h+3xh^2+h^3}{h} = \lim_{h \to 0} (3x^2+3xh+h^2) = 3x^2\)}
+\end{problem}
+
+\begin{problem}{By Definition of Derivative}{Find the derivative of \(h(x) = 2x + 5\)}
+    \hint{Substitute \(h(x+h)\) and \(h(x)\) into the limit definition.}
+    \solution{\(h'(x) = \lim_{h \to 0} \frac{(2(x+h)+5) - (2x+5)}{h} = \lim_{h \to 0} \frac{2h}{h} = 2\)}
+\end{problem}
+
+\begin{problem}{By Definition of Derivative}{Find the derivative of \(k(x) = 7\)}
+    \hint{The function's value is constant. What is \(k(x+h) - k(x)\)?}
+    \solution{\(k'(x) = \lim_{h \to 0} \frac{7 - 7}{h} = \lim_{h \to 0} 0 = 0\)}
+\end{problem}
+
+\begin{problem}{By Definition of Derivative}{Find the derivative of \(m(x) = e^x\)}
+    \hint{Use the fact that \( \lim_{h \to 0} \frac{e^h - 1}{h} = 1 \).}
+    \solution{\(m'(x) = \lim_{h \to 0} \frac{e^{x+h} - e^x}{h} = \lim_{h \to 0} \frac{e^x(e^h - 1)}{h} = e^x \cdot 1 = e^x\)}
+\end{problem}
+
+% --- Basic Differentiation Identities ---
+
+\begin{problem}{Basic Differentiation Identities}{Differentiate \(f(x) = 7\)}
+    \hint{Use the Constant Rule.}
+    \solution{\(f'(x) = 0\)}
+\end{problem}
+
+\begin{problem}{Basic Differentiation Identities}{Differentiate \(g(x) = 5x\)}
+    \hint{Use the Power Rule where \(n=1\).}
+    \solution{\(g'(x) = 5\)}
+\end{problem}
+
+\begin{problem}{Basic Differentiation Identities}{Differentiate \(h(x) = -3x^4\)}
+    \hint{Use the Constant Multiple and Power Rule.}
+    \solution{\(h'(x) = -12x^3\)}
+\end{problem}
+
+\begin{problem}{Basic Differentiation Identities}{Differentiate \(k(x) = 2x^3 + 7x\)}
+    \hint{Use the Sum Rule.}
+    \solution{\(k'(x) = 6x^2 + 7\)}
+\end{problem}
+
+\begin{problem}{Basic Differentiation Identities}{Differentiate \(m(x) = 9x^2 - 4\)}
+    \hint{Use the Difference Rule.}
+    \solution{\(m'(x) = 18x\)}
+\end{problem}
+
+\begin{problem}{Basic Differentiation Identities}{Differentiate \(n(x) = x^5 + x^4 + x^3\)}
+    \hint{Apply the Power Rule to each term.}
+    \solution{\(n'(x) = 5x^4 + 4x^3 + 3x^2\)}
+\end{problem}
+
+\begin{problem}{Basic Differentiation Identities}{Differentiate \(p(x) = 100x^7 - 25x^2 + 6\)}
+    \hint{Apply the power rule and sum/difference rules to each term.}
+    \solution{\(p'(x) = 700x^6 - 50x\)}
+\end{problem}
+
+\begin{problem}{Basic Differentiation Identities}{Differentiate \(q(x) = 8e^x\)}
+    \hint{The derivative of \(e^x\) is itself.}
+    \solution{\(q'(x) = 8e^x\)}
+\end{problem}
+
+\begin{problem}{Basic Differentiation Identities}{Differentiate \(r(x) = e^x - 5x\)}
+    \hint{Use the Difference Rule.}
+    \solution{\(r'(x) = e^x - 5\)}
+\end{problem}
+
+\begin{problem}{Basic Differentiation Identities}{Differentiate \(s(x) = x^3 + e^x + 10\)}
+    \hint{Use the Sum Rule.}
+    \solution{\(s'(x) = 3x^2 + e^x\)}
+\end{problem}
+
+% --- Power Rule + e^x ---
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(f(x) = x^e\)}
+    \hint{Treat \(e\) as a constant and use the Power Rule.}
+    \solution{\(f'(x) = ex^{e-1}\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(g(x) = x^\pi\)}
+    \hint{Treat \(\pi\) as a constant and use the Power Rule.}
+    \solution{\(g'(x) = \pi x^{\pi-1}\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(h(x) = 7x^3\)}
+    \hint{Use the Constant Multiple and Power Rule.}
+    \solution{\(h'(x) = 21x^2\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(k(x) = -4x^6\)}
+    \hint{Use the Constant Multiple and Power Rule.}
+    \solution{\(k'(x) = -24x^5\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(m(x) = x^{10}\)}
+    \hint{Use the Power Rule.}
+    \solution{\(m'(x) = 10x^9\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(n(x) = 3x^8 + 2x\)}
+    \hint{Use the Sum Rule.}
+    \solution{\(n'(x) = 24x^7 + 2\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(p(x) = 12x^7 - x^2\)}
+    \hint{Use the Difference Rule.}
+    \solution{\(p'(x) = 84x^6 - 2x\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(q(x) = \tfrac{1}{2}x^9\)}
+    \hint{Use the Constant Multiple and Power Rule.}
+    \solution{\(q'(x) = \tfrac{9}{2}x^8\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(r(x) = x^4 + x^3 + x^2 + x\)}
+    \hint{Apply the Power Rule to each term.}
+    \solution{\(r'(x) = 4x^3 + 3x^2 + 2x + 1\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(s(x) = 100x^{50}\)}
+    \hint{Use the Constant Multiple and Power Rule.}
+    \solution{\(s'(x) = 5000x^{49}\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(f(x) = e^x\)}
+    \hint{This is a base case derivative.}
+    \solution{\(f'(x) = e^x\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(g(x) = 5e^x\)}
+    \hint{Use the Constant Multiple Rule.}
+    \solution{\(g'(x) = 5e^x\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(h(x) = -3e^x\)}
+    \hint{Use the Constant Multiple Rule.}
+    \solution{\(h'(x) = -3e^x\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(k(x) = x + e^x\)}
+    \hint{Use the Sum Rule.}
+    \solution{\(k'(x) = 1 + e^x\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(m(x) = x^2 + e^x\)}
+    \hint{Use the Sum Rule.}
+    \solution{\(m'(x) = 2x + e^x\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(n(x) = x^5 - e^x\)}
+    \hint{Use the Difference Rule.}
+    \solution{\(n'(x) = 5x^4 - e^x\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(p(x) = 7x^3 + 9e^x\)}
+    \hint{Use the Sum Rule.}
+    \solution{\(p'(x) = 21x^2 + 9e^x\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(q(x) = 20 + e^x\)}
+    \hint{The derivative of a constant is zero.}
+    \solution{\(q'(x) = e^x\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(r(x) = 4x^2 + 12e^x\)}
+    \hint{Use the Sum Rule.}
+    \solution{\(r'(x) = 8x + 12e^x\)}
+\end{problem}
+
+\begin{problem}{Power Rule + e^x}{Differentiate \(s(x) = x^{100} + e^x\)}
+    \hint{Use the Sum Rule.}
+    \solution{\(s'(x) = 100x^{99} + e^x\)}
+\end{problem}
+
+% --- QUICK TRIG ---
+
+\begin{problem}{QUICK TRIG}{Find \(\dfrac{d}{dx} ( \sin x )\)}
+    \hint{This is a fundamental trigonometric derivative.}
+    \solution{\(\cos x\)}
+\end{problem}
+
+\begin{problem}{QUICK TRIG}{Find \(\dfrac{d}{dx} ( \cos x )\)}
+    \hint{This is a fundamental trigonometric derivative.}
+    \solution{\(-\sin x\)}
+\end{problem}
+
+\begin{problem}{QUICK TRIG}{Find \(\dfrac{d}{dx} ( \tan x )\)}
+    \hint{This is a fundamental trigonometric derivative.}
+    \solution{\(\sec^2 x\)}
+\end{problem}
+
+\begin{problem}{QUICK TRIG}{Find \(\dfrac{d}{dx} ( \cot x )\)}
+    \hint{This is a fundamental trigonometric derivative.}
+    \solution{\(-\csc^2 x\)}
+\end{problem}
+
+\begin{problem}{QUICK TRIG}{Find \(\dfrac{d}{dx} ( \sec x )\)}
+    \hint{This is a fundamental trigonometric derivative.}
+    \solution{\(\sec x \tan x\)}
+\end{problem}
+
+\begin{problem}{QUICK TRIG}{Find \(\dfrac{d}{dx} ( \csc x )\)}
+    \hint{This is a fundamental trigonometric derivative.}
+    \solution{\(-\csc x \cot x\)}
+\end{problem}
+
+% --- Product and Quotient Rule ---
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(f(x) = x \cdot e^x\)}
+    \hint{Apply the Product Rule: \((uv)' = u'v + uv'\).}
+    \solution{\(f'(x) = 1 \cdot e^x + x \cdot e^x = e^x(1+x)\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(g(x) = x^2 \cdot e^x\)}
+    \hint{Apply the Product Rule.}
+    \solution{\(g'(x) = 2x \cdot e^x + x^2 \cdot e^x = e^x(2x+x^2)\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(h(x) = (x^3)(x^2)\)}
+    \hint{Simplify first to \(x^5\), then use the Power Rule.}
+    \solution{\(h'(x) = 5x^4\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(k(x) = (2x+1)(x^2)\)}
+    \hint{Apply the Product Rule or distribute first to get \(2x^3+x^2\).}
+    \solution{\(k'(x) = 2(x^2) + (2x+1)(2x) = 2x^2 + 4x^2 + 2x = 6x^2+2x\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(m(x) = (x^2+1)(x^3+5)\)}
+    \hint{Apply the Product Rule.}
+    \solution{\(m'(x) = (2x)(x^3+5) + (x^2+1)(3x^2) = 2x^4+10x+3x^4+3x^2 = 5x^4+3x^2+10x\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(n(x) = (x^4)(e^x)\)}
+    \hint{Apply the Product Rule.}
+    \solution{\(n'(x) = 4x^3 e^x + x^4 e^x\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(p(x) = (3x^2)(5x^3)\)}
+    \hint{Simplify first to \(15x^5\).}
+    \solution{\(p'(x) = 75x^4\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(q(x) = (x+2)(x^2+3)\)}
+    \hint{Apply the Product Rule.}
+    \solution{\(q'(x) = 1(x^2+3) + (x+2)(2x) = x^2+3 + 2x^2+4x = 3x^2+4x+3\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(r(x) = (x^2+1)(e^x)\)}
+    \hint{Apply the Product Rule.}
+    \solution{\(r'(x) = (2x)(e^x) + (x^2+1)(e^x) = e^x(x^2+2x+1) = e^x(x+1)^2\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(s(x) = (x^5)(\sin x)\)}
+    \hint{Use the Product Rule with a trig function.}
+    \solution{\(s'(x) = 5x^4\sin x + x^5\cos x\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(f(x) = \tfrac{1}{x}\)}
+    \hint{Rewrite as \(x^{-1}\) and use the Power Rule, or use the Quotient Rule.}
+    \solution{\(f'(x) = -x^{-2} = -\tfrac{1}{x^2}\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(g(x) = \tfrac{x^2}{x+1}\)}
+    \hint{Apply the Quotient Rule: \((\frac{u}{v})' = \frac{u'v - uv'}{v^2}\).}
+    \solution{\(g'(x) = \tfrac{2x(x+1) - x^2(1)}{(x+1)^2} = \tfrac{x^2+2x}{(x+1)^2}\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(h(x) = \tfrac{e^x}{x}\)}
+    \hint{Apply the Quotient Rule.}
+    \solution{\(h'(x) = \tfrac{e^x x - e^x(1)}{x^2} = \tfrac{e^x(x-1)}{x^2}\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(k(x) = \tfrac{x}{x^2+1}\)}
+    \hint{Apply the Quotient Rule.}
+    \solution{\(k'(x) = \tfrac{1(x^2+1) - x(2x)}{(x^2+1)^2} = \tfrac{1-x^2}{(x^2+1)^2}\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(m(x) = \tfrac{x^3}{e^x}\)}
+    \hint{Apply the Quotient Rule.}
+    \solution{\(m'(x) = \tfrac{3x^2 e^x - x^3 e^x}{(e^x)^2} = \tfrac{x^2(3-x)}{e^x}\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(n(x) = \tfrac{e^x}{x^2+1}\)}
+    \hint{Apply the Quotient Rule.}
+    \solution{\(n'(x) = \tfrac{e^x(x^2+1) - e^x(2x)}{(x^2+1)^2} = \tfrac{e^x(x-1)^2}{(x^2+1)^2}\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(p(x) = \tfrac{x^2+1}{x+2}\)}
+    \hint{Apply the Quotient Rule.}
+    \solution{\(p'(x) = \tfrac{2x(x+2) - (x^2+1)(1)}{(x+2)^2} = \tfrac{x^2+4x-1}{(x+2)^2}\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(q(x) = \tfrac{x^3+1}{x^2+1}\)}
+    \hint{Apply the Quotient Rule.}
+    \solution{\(q'(x) = \tfrac{3x^2(x^2+1) - (x^3+1)(2x)}{(x^2+1)^2} = \tfrac{x^4+3x^2-2x}{(x^2+1)^2}\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(r(x) = \tfrac{\sin x}{x}\)}
+    \hint{Apply the Quotient Rule.}
+    \solution{\(r'(x) = \tfrac{x\cos x - \sin x}{x^2}\)}
+\end{problem}
+
+\begin{problem}{Product and Quotient Rule}{Differentiate \(s(x) = \tfrac{x}{\sin x}\)}
+    \hint{Apply the Quotient Rule.}
+    \solution{\(s'(x) = \tfrac{1(\sin x) - x(\cos x)}{\sin^2 x} = \tfrac{\sin x - x \cos x}{\sin^2 x}\)}
+\end{problem}
+
+% --- Easy Chain Rule ---
+
+\begin{problem}{Easy Chain Rule}{Differentiate \(f(x) = (2x + 3)^5\)}
+    \hint{Outer function is \(u^5\), inner function is \(2x+3\).}
+    \solution{\(f'(x) = 5(2x+3)^4 \cdot 2 = 10(2x+3)^4\)}
+\end{problem}
+
+\begin{problem}{Easy Chain Rule}{Differentiate \(g(x) = (x^2 + 1)^4\)}
+    \hint{Outer function is \(u^4\), inner function is \(x^2+1\).}
+    \solution{\(g'(x) = 4(x^2+1)^3 \cdot 2x = 8x(x^2+1)^3\)}
+\end{problem}
+
+\begin{problem}{Easy Chain Rule}{Differentiate \(h(x) = (3x - 1)^6\)}
+    \hint{Outer function is \(u^6\), inner function is \(3x-1\).}
+    \solution{\(h'(x) = 6(3x-1)^5 \cdot 3 = 18(3x-1)^5\)}
+\end{problem}
+
+\begin{problem}{Easy Chain Rule}{Differentiate \(k(x) = \sqrt{5x+2}\)}
+    \hint{Rewrite as \((5x+2)^{1/2}\) and use the Chain Rule.}
+    \solution{\(k'(x) = \tfrac{1}{2}(5x+2)^{-1/2} \cdot 5 = \tfrac{5}{2\sqrt{5x+2}}\)}
+\end{problem}
+
+\begin{problem}{Easy Chain Rule}{Differentiate \(m(x) = (x^3 + 2x)^2\)}
+    \hint{Outer function is \(u^2\), inner function is \(x^3+2x\).}
+    \solution{\(m'(x) = 2(x^3+2x) \cdot (3x^2+2)\)}
+\end{problem}
+
+\begin{problem}{Easy Chain Rule}{Differentiate \(n(x) = e^{3x+1}\)}
+    \hint{The derivative of \(e^u\) is \(e^u \cdot u'\).}
+    \solution{\(n'(x) = e^{3x+1} \cdot 3 = 3e^{3x+1}\)}
+\end{problem}
+
+\begin{problem}{Easy Chain Rule}{Differentiate \(p(x) = e^{x^2}\)}
+    \hint{The derivative of \(e^u\) is \(e^u \cdot u'\).}
+    \solution{\(p'(x) = e^{x^2} \cdot 2x = 2xe^{x^2}\)}
+\end{problem}
+
+\begin{problem}{Easy Chain Rule}{Differentiate \(q(x) = \ln(2x+5)\)}
+    \hint{The derivative of \(\ln(u)\) is \(\frac{1}{u} \cdot u'\).}
+    \solution{\(q'(x) = \tfrac{1}{2x+5} \cdot 2 = \tfrac{2}{2x+5}\)}
+\end{problem}
+
+\begin{problem}{Easy Chain Rule}{Differentiate \(r(x) = \sin(4x)\)}
+    \hint{The derivative of \(\sin(u)\) is \(\cos(u) \cdot u'\).}
+    \solution{\(r'(x) = \cos(4x) \cdot 4 = 4\cos(4x)\)}
+\end{problem}
+
+\begin{problem}{Easy Chain Rule}{Differentiate \(s(x) = \tan(3x+2)\)}
+    \hint{The derivative of \(\tan(u)\) is \(\sec^2(u) \cdot u'\).}
+    \solution{\(s'(x) = \sec^2(3x+2) \cdot 3 = 3\sec^2(3x+2)\)}
+\end{problem}
+
+% --- Slightly Harder Chain Rule ---
+
+\begin{problem}{Slightly Harder Chain Rule}{Differentiate \(f(x) = \sqrt{3x^2 + 4x + 1}\)}
+    \hint{Rewrite as \((3x^2+4x+1)^{1/2}\).}
+    \solution{\(f'(x) = \tfrac{1}{2}(3x^2+4x+1)^{-1/2} \cdot (6x+4) = \tfrac{3x+2}{\sqrt{3x^2+4x+1}}\)}
+\end{problem}
+
+\begin{problem}{Slightly Harder Chain Rule}{Differentiate \(g(x) = (5x^3 - 2x + 7)^{10}\)}
+    \hint{Apply the general power rule.}
+    \solution{\(g'(x) = 10(5x^3 - 2x + 7)^9 \cdot (15x^2 - 2)\)}
+\end{problem}
+
+\begin{problem}{Slightly Harder Chain Rule}{Differentiate \(h(x) = e^{x^2 + 3x}\)}
+    \hint{The derivative of \(e^u\) is \(e^u \cdot u'\).}
+    \solution{\(h'(x) = e^{x^2+3x} \cdot (2x+3)\)}
+\end{problem}
+
+\begin{problem}{Slightly Harder Chain Rule}{Differentiate \(k(x) = \ln(x^4 + 2)\)}
+    \hint{The derivative of \(\ln(u)\) is \(\frac{u'}{u}\).}
+    \solution{\(k'(x) = \tfrac{4x^3}{x^4+2}\)}
+\end{problem}
+
+\begin{problem}{Slightly Harder Chain Rule}{Differentiate \(m(x) = (2x + 1)^5 \cdot (x^2 - 3)^2\)}
+    \hint{This requires the Product Rule first, then the Chain Rule for each part.}
+    \solution{\(m'(x) = [5(2x+1)^4 \cdot 2](x^2-3)^2 + (2x+1)^5[2(x^2-3) \cdot 2x] = 10(2x+1)^4(x^2-3)^2 + 4x(2x+1)^5(x^2-3)\)}
+\end{problem}
+
+\begin{problem}{Slightly Harder Chain Rule}{Differentiate \(n(x) = \cos(e^x)\)}
+    \hint{The derivative of \(\cos(u)\) is \(-\sin(u) \cdot u'\).}
+    \solution{\(n'(x) = -\sin(e^x) \cdot e^x = -e^x\sin(e^x)\)}
+\end{problem}
+
+\begin{problem}{Slightly Harder Chain Rule}{Differentiate \(p(x) = e^{\sin(2x)}\)}
+    \hint{This is a nested Chain Rule. \(e^u\), where \(u=\sin(v)\), where \(v=2x\).}
+    \solution{\(p'(x) = e^{\sin(2x)} \cdot \cos(2x) \cdot 2 = 2\cos(2x)e^{\sin(2x)}\)}
+\end{problem}
+
+\begin{problem}{Slightly Harder Chain Rule}{Differentiate \(q(x) = \tan(x^2 + 1)\)}
+    \hint{The derivative of \(\tan(u)\) is \(\sec^2(u) \cdot u'\).}
+    \solution{\(q'(x) = \sec^2(x^2+1) \cdot 2x = 2x\sec^2(x^2+1)\)}
+\end{problem}
+
+\begin{problem}{Slightly Harder Chain Rule}{Differentiate \(r(x) = \ln(\cos x)\)}
+    \hint{The derivative of \(\ln(u)\) is \(\frac{u'}{u}\).}
+    \solution{\(r'(x) = \tfrac{1}{\cos x} \cdot (-\sin x) = -\tan x\)}
+\end{problem}
+
+\begin{problem}{Slightly Harder Chain Rule}{Differentiate \(s(x) = (x^3 + 1)^{\ln x}\)}
+    \hint{Use logarithmic differentiation. Let \(y = s(x)\), so \(\ln y = (\ln x) \ln(x^3+1)\).}
+    \solution{\(s'(x) = (x^3 + 1)^{\ln x} \left[ \frac{\ln(x^3+1)}{x} + \frac{3x^2 \ln x}{x^3+1} \right]\)}
+\end{problem}
+
+% --- Derivatives of the Form a^x ---
+
+\begin{problem}{Derivatives of the Form a^x}{Differentiate \(f(x) = 2^x\)}
+    \hint{The derivative of \(a^x\) is \(a^x \ln(a)\).}
+    \solution{\(f'(x) = 2^x \ln(2)\)}
+\end{problem}
+
+\begin{problem}{Derivatives of the Form a^x}{Differentiate \(g(x) = 10^x\)}
+    \hint{The derivative of \(a^x\) is \(a^x \ln(a)\).}
+    \solution{\(g'(x) = 10^x \ln(10)\)}
+\end{problem}
+
+\begin{problem}{Derivatives of the Form a^x}{Differentiate \(h(x) = 3 \cdot 5^x\)}
+    \hint{Use the constant multiple rule.}
+    \solution{\(h'(x) = 3 \cdot 5^x \ln(5)\)}
+\end{problem}
+
+\begin{problem}{Derivatives of the Form a^x}{Differentiate \(k(x) = x^3 + 3^x\)}
+    \hint{Differentiate each term separately. One is the Power Rule, the other is the \(a^x\) rule.}
+    \solution{\(k'(x) = 3x^2 + 3^x \ln(3)\)}
+\end{problem}
+
+\begin{problem}{Derivatives of the Form a^x}{Differentiate \(m(x) = 7^{2x}\)}
+    \hint{Use the Chain Rule. The derivative of \(a^u\) is \(a^u \ln(a) \cdot u'\).}
+    \solution{\(m'(x) = 7^{2x} \ln(7) \cdot 2 = 2 \ln(7) \cdot 7^{2x}\)}
+\end{problem}
+
+\begin{problem}{Derivatives of the Form a^x}{Differentiate \(n(x) = 5^{x^2}\)}
+    \hint{Use the Chain Rule. The derivative of \(a^u\) is \(a^u \ln(a) \cdot u'\).}
+    \solution{\(n'(x) = 5^{x^2} \ln(5) \cdot 2x = 2x \ln(5) \cdot 5^{x^2}\)}
+\end{problem}
+
+\begin{problem}{Derivatives of the Form a^x}{Differentiate \(p(x) = x \cdot 4^x\)}
+    \hint{Use the Product Rule.}
+    \solution{\(p'(x) = 1 \cdot 4^x + x \cdot 4^x \ln(4) = 4^x(1 + x\ln 4)\)}
+\end{problem}
+
+\begin{problem}{Derivatives of the Form a^x}{Differentiate \(q(x) = \dfrac{2^x}{x}\)}
+    \hint{Use the Quotient Rule.}
+    \solution{\(q'(x) = \dfrac{2^x \ln(2) \cdot x - 2^x \cdot 1}{x^2} = \dfrac{2^x(x\ln 2 - 1)}{x^2}\)}
+\end{problem}
+
+\begin{problem}{Derivatives of the Form a^x}{Differentiate \(r(x) = 8^{\sin x}\)}
+    \hint{Use the Chain Rule with \(u = \sin x\).}
+    \solution{\(r'(x) = 8^{\sin x} \ln(8) \cdot \cos x\)}
+\end{problem}
+
+\begin{problem}{Derivatives of the Form a^x}{Differentiate \(s(x) = (x+1) \cdot 6^x\)}
+    \hint{Use the Product Rule.}
+    \solution{\(s'(x) = 1 \cdot 6^x + (x+1) \cdot 6^x \ln(6) = 6^x(1 + (x+1)\ln 6)\)}
+\end{problem}
+
+% --- haha good luck ---
+
+\begin{problem}{haha good luck}{Differentiate \(f(x) = \big(x^{\ln x}\big)^{\sqrt{x}}\)}
+    \hint{Simplify first: \(f(x) = x^{\sqrt{x}\ln x}\). Then use logarithmic differentiation.}
+    \solution{\(f'(x) = x^{\sqrt{x}\ln x} \left( \frac{\ln^2 x}{2\sqrt{x}} + \frac{2\sqrt{x}\ln x}{x} \right)\)}
+\end{problem}
+
+\begin{problem}{haha good luck}{Differentiate \(g(x) = \exp\!\big(e^{x^2}\,\ln x\big)\)}
+    \hint{Let \(u = e^{x^2}\ln x\). The derivative is \(g'(x) = g(x) \cdot u'\). Find \(u'\) with the product rule.}
+    \solution{\(g'(x) = \exp(e^{x^2}\ln x) \cdot \left( 2xe^{x^2}\ln x + \frac{e^{x^2}}{x} \right)\)}
+\end{problem}
+
+\begin{problem}{haha good luck}{Differentiate \(h(x) = \ln\!\Big(\ln\!\big(x^{\,x^2}+e^{\sqrt{x}}\big)\Big)\)}
+    \hint{Apply the chain rule multiple times. The derivative of \(x^{x^2}\) requires logarithmic differentiation.}
+    \solution{\(h'(x) = \frac{1}{\ln(x^{x^2}+e^{\sqrt{x}})} \cdot \frac{1}{x^{x^2}+e^{\sqrt{x}}} \cdot \left( x^{x^2}(2x\ln x + x) + \frac{e^{\sqrt{x}}}{2\sqrt{x}} \right)\)}
+\end{problem}
+
+\begin{problem}{haha good luck}{Differentiate \(k(x) = x^{\,x^{\,x}}\)}
+    \hint{Use logarithmic differentiation multiple times. Let \(y=k(x)\), \(\ln y = x^x \ln x\). You will need the derivative of \(x^x\).}
+    \solution{\(k'(x) = x^{x^x} \cdot x^x \left( \ln x (\ln x + 1) + \frac{1}{x} \right)\)}
+\end{problem}
+
+\begin{problem}{haha good luck}{Differentiate \(m(x) = \big(\ln x\big)^{\ln(\ln x)}\)}
+    \hint{Use logarithmic differentiation. Let \(y=m(x)\), \(\ln y = \ln(\ln x) \cdot \ln(\ln x) = (\ln(\ln x))^2\).}
+    \solution{\(m'(x) = (\ln x)^{\ln(\ln x)} \left( \frac{2\ln(\ln x)}{x \ln x} \right)\)}
+\end{problem}
+
+% --- Trig Identities ---
+
+\begin{problem}{Trig Identities - Easy}{Differentiate \(f(x) = \sin x\)}
+    \hint{This is a base case derivative.}
+    \solution{\(f'(x) = \cos x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Easy}{Differentiate \(g(x) = \cos x\)}
+    \hint{This is a base case derivative.}
+    \solution{\(g'(x) = -\sin x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Easy}{Differentiate \(h(x) = \tan x\)}
+    \hint{This is a base case derivative.}
+    \solution{\(h'(x) = \sec^2 x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Easy}{Differentiate \(k(x) = \sec x\)}
+    \hint{This is a base case derivative.}
+    \solution{\(k'(x) = \sec x \tan x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Easy}{Differentiate \(m(x) = \csc x\)}
+    \hint{This is a base case derivative.}
+    \solution{\(m'(x) = -\csc x \cot x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Easy}{Differentiate \(n(x) = \cot x\)}
+    \hint{This is a base case derivative.}
+    \solution{\(n'(x) = -\csc^2 x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Easy}{Differentiate \(p(x) = 3\sin x\)}
+    \hint{Use the constant multiple rule.}
+    \solution{\(p'(x) = 3\cos x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Easy}{Differentiate \(q(x) = 5\cos x\)}
+    \hint{Use the constant multiple rule.}
+    \solution{\(q'(x) = -5\sin x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Easy}{Differentiate \(r(x) = \sin x + \cos x\)}
+    \hint{Use the sum rule.}
+    \solution{\(r'(x) = \cos x - \sin x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Easy}{Differentiate \(s(x) = 2\tan x - \sec x\)}
+    \hint{Use the difference rule.}
+    \solution{\(s'(x) = 2\sec^2 x - \sec x \tan x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Medium}{Differentiate \(f(x) = \sin(2x)\)}
+    \hint{Use the Chain Rule.}
+    \solution{\(f'(x) = \cos(2x) \cdot 2 = 2\cos(2x)\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Medium}{Differentiate \(g(x) = \cos(3x)\)}
+    \hint{Use the Chain Rule.}
+    \solution{\(g'(x) = -\sin(3x) \cdot 3 = -3\sin(3x)\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Medium}{Differentiate \(h(x) = \tan(5x)\)}
+    \hint{Use the Chain Rule.}
+    \solution{\(h'(x) = \sec^2(5x) \cdot 5 = 5\sec^2(5x)\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Medium}{Differentiate \(k(x) = x \sin x\)}
+    \hint{Use the Product Rule.}
+    \solution{\(k'(x) = 1 \cdot \sin x + x \cdot \cos x = \sin x + x \cos x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Medium}{Differentiate \(m(x) = x^2 \cos x\)}
+    \hint{Use the Product Rule.}
+    \solution{\(m'(x) = 2x \cos x + x^2(-\sin x) = 2x\cos x - x^2 \sin x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Medium}{Differentiate \(n(x) = \tfrac{\sin x}{x}\)}
+    \hint{Use the Quotient Rule.}
+    \solution{\(n'(x) = \tfrac{x\cos x - \sin x}{x^2}\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Medium}{Differentiate \(p(x) = \tfrac{\cos x}{1+\sin x}\)}
+    \hint{Use the Quotient Rule. Simplify the numerator using \(\sin^2 x + \cos^2 x = 1\).}
+    \solution{\(p'(x) = \tfrac{-\sin x(1+\sin x) - \cos x(\cos x)}{(1+\sin x)^2} = \tfrac{-\sin x - \sin^2 x - \cos^2 x}{(1+\sin x)^2} = \tfrac{-(\sin x+1)}{(1+\sin x)^2} = \tfrac{-1}{1+\sin x}\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Medium}{Differentiate \(q(x) = \sin^2 x + \cos^2 x\)}
+    \hint{Simplify first using a Pythagorean identity.}
+    \solution{\(\tfrac{d}{dx}(1) = 0\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Medium}{Differentiate \(r(x) = \tfrac{\tan x}{\sec x}\)}
+    \hint{Simplify first. What is \(\tan x\) and \(\sec x\) in terms of \(\sin x\) and \(\cos x\)?}
+    \solution{\(r(x) = \sin x\), so \(r'(x) = \cos x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Medium}{Differentiate \(s(x) = \sin x \cos x\)}
+    \hint{Use the Product Rule, or simplify using the double angle formula for sine: \(\sin(2x) = 2\sin x \cos x\).}
+    \solution{\(s(x) = \tfrac{1}{2}\sin(2x)\), so \(s'(x) = \tfrac{1}{2}\cos(2x) \cdot 2 = \cos(2x)\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Hard}{Differentiate \(f(x) = x^2 \sin(3x)\)}
+    \hint{Use the Product Rule and the Chain Rule.}
+    \solution{\(f'(x) = 2x\sin(3x) + x^2(\cos(3x) \cdot 3) = 2x\sin(3x) + 3x^2\cos(3x)\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Hard}{Differentiate \(g(x) = \tfrac{\sin^2 x}{\cos x}\)}
+    \hint{Use the Quotient Rule and Chain Rule. Or rewrite as \(\sin x \tan x\) and use the Product Rule.}
+    \solution{\(g'(x) = \tfrac{2\sin x \cos x (\cos x) - \sin^2 x (-\sin x)}{\cos^2 x} = \tfrac{2\sin x \cos^2 x + \sin^3 x}{\cos^2 x} = 2\sin x + \tan^2 x \sin x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Hard}{Differentiate \(h(x) = \tfrac{\cos(2x)}{\sin x}\)}
+    \hint{Use the Quotient Rule and Chain Rule.}
+    \solution{\(h'(x) = \tfrac{-2\sin(2x)\sin x - \cos(2x)\cos x}{\sin^2 x}\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Hard}{Differentiate \(k(x) = \tan^2 x + \sec^2 x\)}
+    \hint{Use the chain rule on both terms. Alternatively, use the identity \(1+\tan^2 x = \sec^2 x\) to simplify first.}
+    \solution{\(k'(x) = 2\tan x \sec^2 x + 2\sec x (\sec x \tan x) = 4\sec^2 x \tan x\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Hard}{Differentiate \(m(x) = (x^2+1)\cos(5x)\)}
+    \hint{Use the Product Rule and the Chain Rule.}
+    \solution{\(m'(x) = 2x\cos(5x) + (x^2+1)(-\sin(5x) \cdot 5) = 2x\cos(5x) - 5(x^2+1)\sin(5x)\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Harder}{Differentiate \(f(x) = \tfrac{\sin^3 x}{\cos^2 x}\)}
+    \hint{Rewrite as \(\tan^2 x \sin x\) and use the product rule, or use the quotient rule.}
+    \solution{\(f'(x) = \tfrac{3\sin^2 x \cos x (\cos^2 x) - \sin^3 x (2\cos x (-\sin x))}{\cos^4 x} = \tfrac{3\sin^2 x \cos^2 x + 2\sin^4 x}{\cos^3 x} = \sin x \tan x (3\cos^2 x + 2\sin^2 x)\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Harder}{Differentiate \(g(x) = \tfrac{\sin x \cos x}{1+\tan x}\)}
+    \hint{Simplify \(\sin x \cos x = \frac{1}{2}\sin(2x)\) first, then use the quotient rule.}
+    \solution{\(g'(x) = \tfrac{\cos(2x)(1+\tan x) - \frac{1}{2}\sin(2x)(\sec^2 x)}{(1+\tan x)^2}\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Harder}{Differentiate \(h(x) = \tfrac{\sin(2x)}{\tan(x)}\)}
+    \hint{Simplify first using double angle and tangent identities.}
+    \solution{\(h(x) = \frac{2\sin x \cos x}{\sin x / \cos x} = 2\cos^2 x\). So \(h'(x) = 2(2\cos x)(-\sin x) = -2\sin(2x)\).}
+\end{problem}
+
+\begin{problem}{Trig Identities - Harder}{Differentiate \(k(x) = \tfrac{x \sin x}{1+\cos^2 x}\)}
+    \hint{Use the Quotient Rule. The derivative of the numerator requires the Product Rule.}
+    \solution{\(k'(x) = \tfrac{(\sin x + x\cos x)(1+\cos^2 x) - (x\sin x)(-2\cos x \sin x)}{(1+\cos^2 x)^2}\)}
+\end{problem}
+
+\begin{problem}{Trig Identities - Harder}{Differentiate \(m(x) = \tfrac{\tan^3 x}{\sec(2x)}\)}
+    \hint{Use the Quotient Rule and Chain Rule.}
+    \solution{\(m'(x) = \tfrac{3\tan^2 x \sec^2 x (\sec(2x)) - \tan^3 x (\sec(2x)\tan(2x) \cdot 2)}{\sec^2(2x)}\)}
+\end{problem}
+
+% --- I'm sorry in advance ---
+
+\begin{problem}{I'm sorry in advance}{Differentiate \(f(x) = (\sin x)^{\sin x}\)}
+    \hint{Use logarithmic differentiation. Let \(y = f(x)\), so \(\ln y = \sin x \ln(\sin x)\).}
+    \solution{\(f'(x) = (\sin x)^{\sin x} \left[ \cos x \ln(\sin x) + \sin x \frac{\cos x}{\sin x} \right] = (\sin x)^{\sin x} \cos x (\ln(\sin x) + 1)\)}
+\end{problem}
+
+\begin{problem}{I'm sorry in advance}{Differentiate \(g(x) = \tfrac{\sin(x^{\sin x})}{x}\)}
+    \hint{Quotient rule. For the numerator's derivative, use chain rule. The inner derivative of \(x^{\sin x}\) requires logarithmic differentiation.}
+    \solution{\(g'(x) = \tfrac{\cos(x^{\sin x}) \cdot [x^{\sin x}(\cos x \ln x + \frac{\sin x}{x})] \cdot x - \sin(x^{\sin x})}{x^2}\)}
+\end{problem}
+
+% --- Summary Sections ---
+
+\begin{problem}{Summary (Easy)}{Differentiate \(f(x) = x^4\)}
+    \hint{Power Rule.}
+    \solution{\(f'(x) = 4x^3\)}
+\end{problem}
+
+\begin{problem}{Summary (Easy)}{Differentiate \(g(x) = 7x\)}
+    \hint{Power Rule with \(n=1\).}
+    \solution{\(g'(x) = 7\)}
+\end{problem}
+
+\begin{problem}{Summary (Easy)}{Differentiate \(h(x) = e^x\)}
+    \hint{Base case derivative.}
+    \solution{\(h'(x) = e^x\)}
+\end{problem}
+
+\begin{problem}{Summary (Easy)}{Differentiate \(k(x) = \sin x\)}
+    \hint{Base case derivative.}
+    \solution{\(k'(x) = \cos x\)}
+\end{problem}
+
+\begin{problem}{Summary (Easy)}{Differentiate \(m(x) = \cos x\)}
+    \hint{Base case derivative.}
+    \solution{\(m'(x) = -\sin x\)}
+\end{problem}
+
+\begin{problem}{Summary (Easy)}{Differentiate \(n(x) = \tan x\)}
+    \hint{Base case derivative.}
+    \solution{\(n'(x) = \sec^2 x\)}
+\end{problem}
+
+\begin{problem}{Summary (Easy)}{Differentiate \(p(x) = (x^2)(x^3)\)}
+    \hint{Simplify to \(x^5\) first.}
+    \solution{\(p'(x) = 5x^4\)}
+\end{problem}
+
+\begin{problem}{Summary (Easy)}{Differentiate \(q(x) = \tfrac{x}{x+1}\)}
+    \hint{Quotient Rule.}
+    \solution{\(q'(x) = \tfrac{1(x+1) - x(1)}{(x+1)^2} = \tfrac{1}{(x+1)^2}\)}
+\end{problem}
+
+\begin{problem}{Summary (Easy)}{Differentiate \(r(x) = (2x+1)^4\)}
+    \hint{Chain Rule.}
+    \solution{\(r'(x) = 4(2x+1)^3 \cdot 2 = 8(2x+1)^3\)}
+\end{problem}
+
+\begin{problem}{Summary (Easy)}{Differentiate \(s(x) = \ln(3x+2)\)}
+    \hint{Chain Rule.}
+    \solution{\(s'(x) = \tfrac{1}{3x+2} \cdot 3 = \tfrac{3}{3x+2}\)}
+\end{problem}
+
+
+\begin{problem}{Summary (Medium)}{Differentiate \(f(x) = (x^2+1)^5\)}
+    \hint{Chain Rule.}
+    \solution{\(f'(x) = 5(x^2+1)^4 \cdot 2x = 10x(x^2+1)^4\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(g(x) = x^3 e^{2x}\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(g'(x) = 3x^2e^{2x} + x^3(e^{2x} \cdot 2) = e^{2x}(3x^2+2x^3)\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(h(x) = \ln(x^2+3x)\)}
+    \hint{Chain Rule.}
+    \solution{\(h'(x) = \tfrac{2x+3}{x^2+3x}\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(k(x) = \sin x \cdot e^x\)}
+    \hint{Product Rule.}
+    \solution{\(k'(x) = \cos x \cdot e^x + \sin x \cdot e^x = e^x(\cos x + \sin x)\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(m(x) = \dfrac{x^2+1}{x-1}\)}
+    \hint{Quotient Rule.}
+    \solution{\(m'(x) = \tfrac{2x(x-1) - (x^2+1)(1)}{(x-1)^2} = \tfrac{x^2-2x-1}{(x-1)^2}\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(n(x) = \tan(x^2)\)}
+    \hint{Chain Rule.}
+    \solution{\(n'(x) = \sec^2(x^2) \cdot 2x = 2x\sec^2(x^2)\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(p(x) = \dfrac{e^{3x}}{x^2}\)}
+    \hint{Quotient Rule and Chain Rule.}
+    \solution{\(p'(x) = \tfrac{3e^{3x}(x^2) - e^{3x}(2x)}{(x^2)^2} = \tfrac{e^{3x}(3x-2)}{x^3}\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(q(x) = x^x\)}
+    \hint{Use logarithmic differentiation.}
+    \solution{\(q'(x) = x^x(1 + \ln x)\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(r(x) = (\ln x)^5\)}
+    \hint{Chain Rule.}
+    \solution{\(r'(x) = 5(\ln x)^4 \cdot \tfrac{1}{x} = \tfrac{5(\ln x)^4}{x}\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(s(x) = \sqrt{x^3+e^x}\)}
+    \hint{Chain Rule.}
+    \solution{\(s'(x) = \tfrac{1}{2}(x^3+e^x)^{-1/2} \cdot (3x^2+e^x) = \tfrac{3x^2+e^x}{2\sqrt{x^3+e^x}}\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(t(x) = \sin(x^2)\cos x\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(t'(x) = \cos(x^2)(2x)\cos x + \sin(x^2)(-\sin x) = 2x\cos x \cos(x^2) - \sin x \sin(x^2)\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(u(x) = \arctan(2x)\)}
+    \hint{The derivative of \(\arctan(v)\) is \(\frac{1}{1+v^2} \cdot v'\).}
+    \solution{\(u'(x) = \tfrac{1}{1+(2x)^2} \cdot 2 = \tfrac{2}{1+4x^2}\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(v(x) = (x^4+1)^{\ln x}\)}
+    \hint{Use logarithmic differentiation.}
+    \solution{\(v'(x) = (x^4+1)^{\ln x} \left[ \frac{\ln(x^4+1)}{x} + \frac{4x^3 \ln x}{x^4+1} \right]\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(w(x) = \dfrac{\sin x}{1+\cos x}\)}
+    \hint{Quotient Rule. You will be able to simplify the numerator.}
+    \solution{\(w'(x) = \tfrac{\cos x(1+\cos x) - \sin x(-\sin x)}{(1+\cos x)^2} = \tfrac{\cos x + \cos^2 x + \sin^2 x}{(1+\cos x)^2} = \tfrac{\cos x+1}{(1+\cos x)^2} = \tfrac{1}{1+\cos x}\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(y(x) = (x^3+1)^{1/3}\)}
+    \hint{Chain Rule (General Power Rule).}
+    \solution{\(y'(x) = \tfrac{1}{3}(x^3+1)^{-2/3} \cdot 3x^2 = \tfrac{x^2}{(x^3+1)^{2/3}}\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(z(x) = x^2 e^{\sin x}\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(z'(x) = 2xe^{\sin x} + x^2(e^{\sin x} \cdot \cos x) = e^{\sin x}(2x+x^2\cos x)\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(a(x) = \ln(\sin x)\)}
+    \hint{Chain Rule.}
+    \solution{\(a'(x) = \tfrac{1}{\sin x} \cdot \cos x = \cot x\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(b(x) = \sec x \cdot \ln x\)}
+    \hint{Product Rule.}
+    \solution{\(b'(x) = \sec x \tan x \ln x + \sec x \cdot \tfrac{1}{x}\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Find \( \dfrac{dy}{dx}\) given \( x^2+y^2=e^{xy}\)}
+    \hint{Use implicit differentiation. Differentiate both sides with respect to x, remembering to use the chain rule for y and the product/chain rule for the right side.}
+    \solution{\(\dfrac{dy}{dx} = \dfrac{y e^{xy} - 2x}{2y - x e^{xy}}\)}
+\end{problem}
+
+\begin{problem}{Summary (Medium)}{Differentiate \(c(x) = (x+1)^{\ln x}\)}
+    \hint{Use logarithmic differentiation.}
+    \solution{\(c'(x) = (x+1)^{\ln x} \left[ \frac{\ln(x+1)}{x} + \frac{\ln x}{x+1} \right]\)}
+\end{problem}
+
+% --- Trig Simplification Practice ---
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\sin x}{\cos x}\)}
+    \hint{Definition of a trigonometric function.}
+    \solution{\(\tan x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{1}{\csc x}\)}
+    \hint{Reciprocal identity.}
+    \solution{\(\sin x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\cos x}{\sin x}\)}
+    \hint{Definition of a trigonometric function.}
+    \solution{\(\cot x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\sin^2 x + \cos^2 x\)}
+    \hint{Pythagorean identity.}
+    \solution{\(1\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\tan x \cdot \cot x\)}
+    \hint{Use reciprocal identities.}
+    \solution{\(1\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\sec x \cos x\)}
+    \hint{Use reciprocal identities.}
+    \solution{\(1\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\csc x \sin x\)}
+    \hint{Use reciprocal identities.}
+    \solution{\(1\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\sin^2 x}{\cos^2 x}\)}
+    \hint{Definition of tangent.}
+    \solution{\(\tan^2 x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{1-\cos^2 x}{\sin x}\)}
+    \hint{Use a Pythagorean identity in the numerator.}
+    \solution{\(\sin x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\tan x}{\sec x}\)}
+    \hint{Rewrite in terms of sine and cosine.}
+    \solution{\(\sin x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{1+\tan^2 x}{\sec^2 x}\)}
+    \hint{Use a Pythagorean identity in the numerator.}
+    \solution{\(1\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\sin^2 x - \cos^2 x\)}
+    \hint{Factor out a -1 and use the double angle identity for cosine.}
+    \solution{\(-\cos(2x)\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\cos^2 x}{1+\tan^2 x}\)}
+    \hint{Use a Pythagorean identity in the denominator.}
+    \solution{\(\cos^4 x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{1-\cos(2x)}{2}\)}
+    \hint{Power-reducing identity.}
+    \solution{\(\sin^2 x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{1+\cos(2x)}{2}\)}
+    \hint{Power-reducing identity.}
+    \solution{\(\cos^2 x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\sin(2x)\)}
+    \hint{Double-angle identity.}
+    \solution{\(2\sin x \cos x\)}
+\end{preoblem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\sin(2x)}{2\cos x}\)}
+    \hint{Use the double-angle identity in the numerator.}
+    \solution{\(\sin x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{1-\cos(2x)}{\sin x}\)}
+    \hint{Use the double-angle identity for cosine that involves sine.}
+    \solution{\(2\sin x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\sin^2 x}{1+\cos x}\)}
+    \hint{Use a Pythagorean identity in the numerator and factor.}
+    \solution{\(1-\cos x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{1-\cos x}{\sin x}\)}
+    \hint{Half-angle identity.}
+    \solution{\(\tan(x/2)\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{1+\cos x}{\sin x}\)}
+    \hint{Half-angle identity.}
+    \solution{\(\cot(x/2)\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\tan x}{1+\sec x}\)}
+    \hint{Multiply numerator and denominator by the conjugate of the denominator.}
+    \solution{\(\csc x - \cot x\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\sin^4 x - \cos^4 x}{\sin^2 x - \cos^2 x}\)}
+    \hint{Factor the numerator as a difference of squares.}
+    \solution{\(1\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{1-\tan^2 x}{1+\tan^2 x}\)}
+    \hint{Use identities to rewrite in terms of sine and cosine, or use the double angle identity for cosine.}
+    \solution{\(\cos(2x)\)}
+\end{problem}
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\sin(3x)}{\sin x}\)}
+    \hint{Use the sum identity \(\sin(2x+x)\).}
+    \solution{\(3-4\sin^2 x\)}
+\end{problem}
+
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\cos^4 x - \sin^4 x}{\cos^2 x - \sin^2 x}\)}
+    \hint{Factor the numerator as a difference of squares.}
+    \solution{\(1\)}
+\end{problem}
+
+
+\begin{problem}{Trig Simplification}{Simplify \(\dfrac{\sin^2 x}{1-\cos x}\)}
+    \hint{Use a Pythagorean identity in the numerator and factor.}
+    \solution{\(1+\cos x\)}
+\end{problem}
+
+% --- More General Practice ---
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( (x^2+1)\sin x \right)\)}
+    \hint{Product Rule.}
+    \solution{\(2x\sin x + (x^2+1)\cos x\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{\tan x}{x^2} \right)\)}
+    \hint{Quotient Rule.}
+    \solution{\(\dfrac{x^2 \sec^2 x - 2x \tan x}{x^4}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( e^x \cos(2x) \right)\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(e^x \cos(2x) - 2e^x \sin(2x)\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{\ln x}{x^3} \right)\)}
+    \hint{Quotient Rule.}
+    \solution{\(\dfrac{x^2(1/x) - 3x^2 \ln x}{x^6} = \dfrac{1 - 3\ln x}{x^4}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( x^2 \ln(\sin x) \right)\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(2x\ln(\sin x) + x^2 \cot x\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \sqrt{x^2+1}\,\tan x \right)\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(\dfrac{x\tan x}{\sqrt{x^2+1}} + \sqrt{x^2+1}\sec^2 x\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{e^{2x}}{x^2+1} \right)\)}
+    \hint{Quotient Rule and Chain Rule.}
+    \solution{\(\dfrac{2e^{2x}(x^2+1) - e^{2x}(2x)}{(x^2+1)^2}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( x^3 e^{\sin x} \right)\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(3x^2 e^{\sin x} + x^3 \cos x e^{\sin x}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{\cos(3x)}{\sqrt{x}} \right)\)}
+    \hint{Quotient Rule and Chain Rule.}
+    \solution{\(\dfrac{-3\sin(3x)\sqrt{x} - \cos(3x)\frac{1}{2\sqrt{x}}}{x}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \ln\left(\dfrac{1+x}{1-x}\right) \right)\)}
+    \hint{Use log properties first: \(\ln(1+x) - \ln(1-x)\).}
+    \solution{\(\dfrac{1}{1+x} + \dfrac{1}{1-x} = \dfrac{2}{1-x^2}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \sin(x^2)\cos x \right)\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(2x\cos(x^2)\cos x - \sin(x^2)\sin x\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{\sqrt{\tan x}}{x^2} \right)\)}
+    \hint{Quotient Rule and Chain Rule.}
+    \solution{\(\dfrac{\frac{1}{2\sqrt{\tan x}}\sec^2 x \cdot x^2 - 2x\sqrt{\tan x}}{x^4}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( (x^2+1)^3 e^{x^2} \right)\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(3(x^2+1)^2(2x)e^{x^2} + (x^2+1)^3(2x)e^{x^2}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{\sin(2x)}{e^x} \right)\)}
+    \hint{Quotient Rule and Chain Rule.}
+    \solution{\(\dfrac{2\cos(2x)e^x - \sin(2x)e^x}{e^{2x}} = \dfrac{2\cos(2x) - \sin(2x)}{e^x}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \ln(\cos^2 x) \right)\)}
+    \hint{Use log properties first: \(2\ln(\cos x)\).}
+    \solution{\(2 \cdot \frac{-\sin x}{\cos x} = -2\tan x\)}
+\end{preoblem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \sqrt{1+\sin^2 x} \right)\)}
+    \hint{Chain Rule twice.}
+    \solution{\(\dfrac{1}{2\sqrt{1+\sin^2 x}} \cdot 2\sin x \cos x = \dfrac{\sin x \cos x}{\sqrt{1+\sin^2 x}}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( x^x \right)\)}
+    \hint{Logarithmic differentiation.}
+    \solution{\(x^x(1+\ln x)\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{\ln(x^2+1)}{\tan x} \right)\)}
+    \hint{Quotient Rule and Chain Rule.}
+    \solution{\(\dfrac{\frac{2x}{x^2+1}\tan x - \ln(x^2+1)\sec^2 x}{\tan^2 x}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( e^{\sin(3x)} \right)\)}
+    \hint{Chain Rule twice.}
+    \solution{\(e^{\sin(3x)} \cdot \cos(3x) \cdot 3 = 3\cos(3x)e^{\sin(3x)}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \cos^2(\ln x) \right)\)}
+    \hint{Chain Rule twice.}
+    \solution{\(2\cos(\ln x) \cdot (-\sin(\ln x)) \cdot \frac{1}{x} = -\dfrac{\sin(2\ln x)}{x}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{x^2}{\sqrt{1-x^2}} \right)\)}
+    \hint{Quotient Rule and Chain Rule.}
+    \solution{\(\dfrac{2x\sqrt{1-x^2} - x^2 \frac{-2x}{2\sqrt{1-x^2}}}{1-x^2} = \dfrac{2x-x^3}{(1-x^2)^{3/2}}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( (x^2+1)\ln(x^2+1) \right)\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(2x\ln(x^2+1) + (x^2+1)\frac{2x}{x^2+1} = 2x\ln(x^2+1) + 2x\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{e^{2x}}{\ln x} \right)\)}
+    \hint{Quotient Rule and Chain Rule.}
+    \solution{\(\dfrac{2e^{2x}\ln x - e^{2x}(1/x)}{(\ln x)^2}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \tan(x^2+1) \right)\)}
+    \hint{Chain Rule.}
+    \solution{\(2x\sec^2(x^2+1)\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{\sin x}{1+\cos x} \right)\)}
+    \hint{Quotient Rule and simplify.}
+    \solution{\(\dfrac{\cos x(1+\cos x) - \sin x(-\sin x)}{(1+\cos x)^2} = \dfrac{1}{1+\cos x}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( x^3 \ln(\sin x) \right)\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(3x^2 \ln(\sin x) + x^3 \cot x\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{\ln(\sqrt{x^2+1})}{x} \right)\)}
+    \hint{Simplify \(\frac{1}{2}\ln(x^2+1)\) first, then use the quotient rule.}
+    \solution{\(\dfrac{\frac{x}{x^2+1}\cdot x - \frac{1}{2}\ln(x^2+1)}{x^2} = \dfrac{x^2 - \frac{1}{2}(x^2+1)\ln(x^2+1)}{x^2(x^2+1)}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( e^{\tan x} \cos x \right)\)}
+    \hint{Product Rule and Chain Rule.}
+    \solution{\(e^{\tan x} \sec^2 x \cos x - e^{\tan x} \sin x = e^{\tan x}(\sec x - \sin x)\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \sqrt{e^{2x}+1} \right)\)}
+    \hint{Chain Rule.}
+    \solution{\(\dfrac{1}{2\sqrt{e^{2x}+1}} \cdot 2e^{2x} = \dfrac{e^{2x}}{\sqrt{e^{2x}+1}}\)}
+\end{problem}
+
+\begin{problem}{More General Practice}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{\sin(5x)}{x^2+1} \right)\)}
+    \hint{Quotient Rule and Chain Rule.}
+    \solution{\(\dfrac{5\cos(5x)(x^2+1) - 2x\sin(5x)}{(x^2+1)^2}\)}
+\end{problem}
+
+% --- Pretty Hard ---
+
+\begin{problem}{Pretty Hard}{Find the derivative of \( f(x) = \dfrac{x^3 \sin(2x)}{e^{x^2}} \)}
+    \hint{Use the quotient rule, where the numerator's derivative requires the product rule.}
+    \solution{\( f'(x) = \dfrac{(3x^2\sin(2x)+2x^3\cos(2x))e^{x^2} - x^3\sin(2x)(2x e^{x^2})}{(e^{x^2})^2} = \dfrac{3x^2\sin(2x)+2x^3\cos(2x) - 2x^4\sin(2x)}{e^{x^2}} \)}
+\end{problem}
+
+\begin{problem}{Pretty Hard}{Find the derivative of \( g(x) = \ln\left(\sqrt{\dfrac{x^2+1}{\tan x}}\right) \)}
+    \hint{Use log properties first: \(g(x) = \frac{1}{2}[\ln(x^2+1) - \ln(\tan x)]\).}
+    \solution{\( g'(x) = \frac{1}{2}\left[\dfrac{2x}{x^2+1} - \dfrac{\sec^2 x}{\tan x}\right] = \dfrac{x}{x^2+1} - \dfrac{1}{2\sin x\cos x} = \dfrac{x}{x^2+1} - \csc(2x) \)}
+\end{problem}
+
+\begin{problem}{Pretty Hard}{Find the derivative of \( h(x) = (x^2)^{\cos x} \)}
+    \hint{Simplify \(h(x) = x^{2\cos x}\) and use logarithmic differentiation.}
+    \solution{\( \ln h = 2\cos x \ln x \implies \frac{h'}{h} = -2\sin x \ln x + \frac{2\cos x}{x} \implies h'(x) = x^{2\cos x}\left(-2\sin x \ln x + \frac{2\cos x}{x}\right) \)}
+\end{problem}
+
+\begin{problem}{Pretty Hard}{Find the derivative of \( k(x) = e^{\sin(x)} \cdot \sqrt{x^4 + \ln(x)} \)}
+    \hint{Use the product rule, with the chain rule for each part.}
+    \solution{\( k'(x) = \cos x e^{\sin x}\sqrt{x^4+\ln x} + e^{\sin x} \cdot \dfrac{4x^3+1/x}{2\sqrt{x^4+\ln x}} \)}
+\end{problem}
+
+\begin{problem}{Pretty Hard}{Find the derivative of \( m(x) = \dfrac{(3x+1)^5}{\sqrt{x^2+e^{4x}}} \)}
+    \hint{Use logarithmic differentiation to simplify the process.}
+    \solution{\( m'(x) = \dfrac{(3x+1)^5}{\sqrt{x^2+e^{4x}}} \left[ \dfrac{15}{3x+1} - \dfrac{2x+4e^{4x}}{2(x^2+e^{4x})} \right] \)}
+\end{problem}
+
+% --- Yay Good luck ---
+
+\begin{problem}{Yay Good luck}{Differentiate \(\dfrac{d}{dx}\left( (x^2+1)^{x} \right)\)}
+    \hint{Use logarithmic differentiation.}
+    \solution{\( (x^2+1)^x \left( \ln(x^2+1) + \dfrac{2x^2}{x^2+1} \right) \)}
+\end{problem}
+
+\begin{problem}{Yay Good luck}{Differentiate \(\dfrac{d}{dx}\left( \dfrac{x^x}{\ln x} \right)\)}
+    \hint{Quotient rule. The derivative of the numerator, \(x^x\), requires logarithmic differentiation.}
+    \solution{\( \dfrac{x^x(\ln x+1)\ln x - x^x(1/x)}{(\ln x)^2} \)}
+\end{problem}
+
+\begin{problem}{Yay Good luck}{Differentiate \(\dfrac{d}{dx}\left( e^{x\sin x} \right)\)}
+    \hint{Chain rule, with product rule for the exponent.}
+    \solution{\( e^{x\sin x}(\sin x + x\cos x) \)}
+\end{problem}
+
+\begin{problem}{Yay Good luck}{Differentiate \(\dfrac{d}{dx}\left( \tan(\ln(x^2+1)) \right)\)}
+    \hint{Chain rule twice.}
+    \solution{\( \sec^2(\ln(x^2+1)) \cdot \dfrac{2x}{x^2+1} \)}
+\end{problem}
+
+\begin{problem}{Yay Good luck}{Differentiate \(\dfrac{d}{dx}\left( \ln\left( \dfrac{1+\sin x}{1-\sin x} \right) \right)\)}
+    \hint{Use log properties first: \(\ln(1+\sin x) - \ln(1-\sin x)\).}
+    \solution{\( \dfrac{\cos x}{1+\sin x} - \dfrac{-\cos x}{1-\sin x} = \dfrac{2\cos x}{1-\sin^2 x} = \dfrac{2\cos x}{\cos^2 x} = 2\sec x \)}
+\end{problem}
+
+\end{document}

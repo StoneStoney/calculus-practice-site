@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus Practice</title>
+    <!-- Make sure your 'style.css' is in a 'static' folder -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- 1. Configure and load MathJax -->
+    <script>
+        MathJax = {
+            tex: {
+                // Delimiters for inline math, same as in your LaTeX source
+                inlineMath: [['\\(', '\\)']],
+                // Delimiters for display math
+                displayMath: [['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculus Practice Midterm Review</h1>
+        <p>Select a category to practice problems. Click "Show Solution" or "Show Hint" to reveal the answers.</p>
+
+        <div id="category-filter">
+            <button class="filter-button active" data-category="all">All Categories</button>
+            <!-- Category buttons will be inserted here by JavaScript -->
+        </div>
+
+        <div id="problems-display">
+            <!-- Problems will be inserted here by JavaScript -->
+            <p class="loading-message">Loading problems...</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variable to store all fetched problems
+        let allProblemsData = [];
+
+        // Main function to run when the page is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/get-problems')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    allProblemsData = data; // Store the fetched data
+                    renderCategoryFilter(allProblemsData);
+                    renderProblems(allProblemsData); // Render all problems initially
+                })
+                .catch(error => {
+                    console.error('Error fetching problems:', error);
+                    const display = document.getElementById('problems-display');
+                    display.innerHTML = '<p class="error-message">Failed to load problems. Please check the server and console.</p>';
+                });
+        });
+
+        function renderCategoryFilter(data) {
+            const filterContainer = document.getElementById('category-filter');
+            data.forEach(categoryGroup => {
+                const button = document.createElement('button');
+                button.className = 'filter-button';
+                button.dataset.category = categoryGroup.category;
+                button.textContent = categoryGroup.category;
+                // Add event listener directly here
+                button.addEventListener('click', () => filterProblems(categoryGroup.category));
+                filterContainer.appendChild(button);
+            });
+
+            // Add event listener for the 'All Categories' button
+            document.querySelector('.filter-button[data-category="all"]').addEventListener('click', () => filterProblems('all'));
+        }
+
+        function filterProblems(selectedCategory) {
+            // Update the active state on buttons
+            document.querySelectorAll('.filter-button').forEach(button => {
+                button.classList.toggle('active', button.dataset.category === selectedCategory);
+            });
+
+            // Decide which data to render
+            const dataToRender = (selectedCategory === 'all')
+                ? allProblemsData
+                : allProblemsData.filter(group => group.category === selectedCategory);
+            
+            renderProblems(dataToRender);
+        }
+
+        function renderProblems(dataToRender) {
+            const problemsDisplay = document.getElementById('problems-display');
+            problemsDisplay.innerHTML = ''; // Clear existing content
+
+            if (!dataToRender || dataToRender.length === 0) {
+                problemsDisplay.innerHTML = '<p>No problems found for this category.</p>';
+                return;
+            }
+
+            // A counter to create unique IDs for each problem element
+            let problemIdCounter = 0;
+
+            dataToRender.forEach(categoryGroup => {
+                const categorySection = document.createElement('div');
+                categorySection.className = 'category-section';
+
+                const categoryTitle = document.createElement('h2');
+                categoryTitle.textContent = categoryGroup.category;
+                categorySection.appendChild(categoryTitle);
+
+                categoryGroup.problems.forEach(problemObj => {
+                    const problemCard = document.createElement('div');
+                    problemCard.className = 'problem-card';
+
+                    const hintId = `hint-${problemIdCounter}`;
+                    const solutionId = `solution-${problemIdCounter}`;
+                    
+                    // Note: We are directly inserting the LaTeX strings.
+                    // MathJax will find them using the delimiters \(...\)
+                    problemCard.innerHTML = `
+                        <p class="problem-statement"><strong>Problem:</strong> ${problemObj.problem}</p>
+                        ${problemObj.hint ? `<button class="toggle-button" onclick="toggleVisibility(this, '${hintId}')">Show Hint</button>` : ''}
+                        <button class="toggle-button" onclick="toggleVisibility(this, '${solutionId}')">Show Solution</button>
+                        ${problemObj.hint ? `<div id="${hintId}" class="hidden hint-content"><p><strong>Hint:</strong> ${problemObj.hint}</p></div>` : ''}
+                        <div id="${solutionId}" class="hidden solution-content"><p><strong>Solution:</strong> ${problemObj.solution}</p></div>
+                    `;
+                    categorySection.appendChild(problemCard);
+                    problemIdCounter++;
+                });
+                problemsDisplay.appendChild(categorySection);
+            });
+
+            // 2. CRITICAL STEP: After updating the HTML, tell MathJax to render it.
+            // Use 'typesetPromise' which is the modern standard for MathJax v3.
+            MathJax.typesetPromise([problemsDisplay]).catch(err => console.log('MathJax Typeset Error: ', err));
+        }
+
+        function toggleVisibility(button, elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                const isHidden = element.classList.toggle('hidden');
+                button.textContent = isHidden ? button.textContent.replace('Hide', 'Show') : button.textContent.replace('Show', 'Hide');
+            }
+        }
+    </script>
+</body>
+</html>
