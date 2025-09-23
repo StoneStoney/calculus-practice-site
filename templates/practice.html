@@ -1,30 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculus Practice</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
+    
     <script>
         MathJax = {
-            tex: {
-                inlineMath: [['\\(', '\\)']],
-                displayMath: [['\\[', '\\]']]
-            },
-            svg: {
-                fontCache: 'global'
-            }
+            tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</head>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.min.js"></script>
 
+</head>
 <body>
     <div class="container">
         <h1>Calculus Practice Midterm Review</h1>
-        <p>Select a category to practice problems. Type your answer and click "Submit" to check your work.</p>
+        <p>Select a category to practice problems. Type your answer and click "Submit" to check your work. Mathematically equivalent answers are accepted!</p>
 
         <div id="category-filter">
             <button class="filter-button active" data-category="all">All Categories</button>
@@ -34,6 +30,7 @@
             <p class="loading-message">Loading problems...</p>
         </div>
     </div>
+
     <script>
         let allProblemsData = [];
 
@@ -76,7 +73,7 @@
 
         function renderProblems(dataToRender) {
             const problemsDisplay = document.getElementById('problems-display');
-            problemsDisplay.innerHTML = '';
+            problemsDisplay.innerHTML = ''; 
 
             if (!dataToRender || dataToRender.length === 0) {
                 problemsDisplay.innerHTML = '<p>No problems found for this category.</p>';
@@ -99,22 +96,17 @@
                     const hintId = `hint-${problemIdCounter}`;
                     const solutionId = `solution-${problemIdCounter}`;
                     const answerInputId = `answer-input-${problemIdCounter}`;
-
                     const encodedAnswer = btoa(problemObj.answer);
 
                     problemCard.innerHTML = `
                         <p class="problem-statement"><strong>Problem:</strong> ${problemObj.problem}</p>
-                        
                         <div class="user-answer-section">
                             <label for="${answerInputId}">Your Answer:</label>
                             <textarea id="${answerInputId}" class="user-answer-input" rows="3" placeholder="e.g., 2x + cos(x)"></textarea>
-                            
                             <button class="submit-answer-button" onclick="handleSubmitAnswer('${answerInputId}', '${encodedAnswer}')">Submit Answer</button>
-
                             <button class="clear-answer-button" onclick="clearAnswer('${answerInputId}')">Clear</button>
                             <div id="feedback-${answerInputId}" class="answer-feedback"></div>
                         </div>
-
                         ${problemObj.hint ? `<button class="toggle-button" onclick="toggleVisibility(this, '${hintId}')">Show Hint</button>` : ''}
                         <button class="toggle-button" onclick="toggleVisibility(this, '${solutionId}')">Show Solution</button>
                         ${problemObj.hint ? `<div id="${hintId}" class="hidden hint-content"><p><strong>Hint:</strong> ${problemObj.hint}</p></div>` : ''}
@@ -125,7 +117,7 @@
                 });
                 problemsDisplay.appendChild(categorySection);
             });
-
+            
             MathJax.typesetPromise([problemsDisplay]).catch(err => console.log('MathJax Typeset Error: ', err));
         }
 
@@ -137,20 +129,10 @@
             }
         }
 
-        function normalizeAnswer(str) {
-            if (!str) return '';
-            return str
-                .toLowerCase()
-                .replace(/\s+/g, '')
-                .replace(/\\/g, '')
-                .replace(/\{/g, '(')
-                .replace(/\}/g, ')');
-        }
-
         function handleSubmitAnswer(answerInputId, encodedAnswer) {
             const answerInput = document.getElementById(answerInputId);
             const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
-
+            
             const correctAnswer = atob(encodedAnswer);
             const userAnswer = answerInput.value;
 
@@ -162,14 +144,20 @@
                 return;
             }
 
-            const normalizedUserAnswer = normalizeAnswer(userAnswer);
-            const normalizedCorrectAnswer = normalizeAnswer(correctAnswer);
+            try {
+                const simplifiedUserAnswer = math.simplify(userAnswer).toString();
+                const simplifiedCorrectAnswer = math.simplify(correctAnswer).toString();
 
-            if (normalizedUserAnswer === normalizedCorrectAnswer) {
-                feedbackDiv.textContent = 'Correct! Great job!';
-                feedbackDiv.classList.add('feedback-correct');
-            } else {
-                feedbackDiv.textContent = 'Not quite. Try simplifying or check your work.';
+                if (simplifiedUserAnswer === simplifiedCorrectAnswer) {
+                    feedbackDiv.textContent = 'Correct! Great job!';
+                    feedbackDiv.classList.add('feedback-correct');
+                } else {
+                    feedbackDiv.textContent = 'Not quite. Your answer simplifies to a different expression. Try again!';
+                    feedbackDiv.classList.add('feedback-incorrect');
+                }
+            } catch (error) {
+                console.error("Math.js parsing error:", error);
+                feedbackDiv.textContent = 'Could not parse your answer. Please check the syntax.';
                 feedbackDiv.classList.add('feedback-incorrect');
             }
         }
@@ -177,12 +165,11 @@
         function clearAnswer(answerInputId) {
             const answerInput = document.getElementById(answerInputId);
             const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
-
+            
             answerInput.value = '';
             feedbackDiv.innerHTML = '';
             feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
         }
     </script>
 </body>
-
 </html>
