@@ -2,12 +2,11 @@
 \usepackage{amsmath}
 \usepackage{amsfonts} % For mathbb if needed
 
-% --- Document Information for Title Page ---
 \title{Midterm 1 Calculus Practice (Parser-Friendly Version)}
 \author{Hanshi Yang}
 \date{\today}
 
-\pagenumbering{gobble} % Hides all page numbers
+\pagenumbering{gobble} 
 
 % --- Custom Environments for Parsing ---
 % This structure allows a program to easily read and separate the data
@@ -31,8 +30,6 @@
 
 \begin{document}
 
-% The title and summary pages are for visual/PDF output,
-% our parser will ignore them and only look for the 'problem' environments.
 \maketitle
 \newpage
 

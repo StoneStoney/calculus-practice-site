@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculus Practice</title>
-    <!-- Make sure your 'style.css' is in a 'static' folder -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    
-    <!-- 1. Configure and load MathJax -->
+
     <script>
         MathJax = {
             tex: {
-                // Delimiters for inline math, same as in your LaTeX source
                 inlineMath: [['\\(', '\\)']],
-                // Delimiters for display math
                 displayMath: [['\\[', '\\]']]
             },
             svg: {
@@ -23,44 +20,35 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
+
 <body>
     <div class="container">
         <h1>Calculus Practice Midterm Review</h1>
-        <p>Select a category to practice problems. Click "Show Solution" or "Show Hint" to reveal the answers.</p>
+        <p>Select a category to practice problems. Type your answer and click "Submit" to check your work.</p>
 
         <div id="category-filter">
             <button class="filter-button active" data-category="all">All Categories</button>
-            <!-- Category buttons will be inserted here by JavaScript -->
         </div>
 
         <div id="problems-display">
-            <!-- Problems will be inserted here by JavaScript -->
             <p class="loading-message">Loading problems...</p>
         </div>
     </div>
 
     <script>
-        // Global variable to store all fetched problems
         let allProblemsData = [];
 
-        // Main function to run when the page is loaded
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             fetch('/get-problems')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
+                .then(response => response.ok ? response.json() : Promise.reject(response))
                 .then(data => {
-                    allProblemsData = data; // Store the fetched data
+                    allProblemsData = data;
                     renderCategoryFilter(allProblemsData);
-                    renderProblems(allProblemsData); // Render all problems initially
+                    renderProblems(allProblemsData);
                 })
                 .catch(error => {
                     console.error('Error fetching problems:', error);
-                    const display = document.getElementById('problems-display');
-                    display.innerHTML = '<p class="error-message">Failed to load problems. Please check the server and console.</p>';
+                    document.getElementById('problems-display').innerHTML = '<p class="error-message">Failed to load problems.</p>';
                 });
         });
 
@@ -71,41 +59,32 @@
                 button.className = 'filter-button';
                 button.dataset.category = categoryGroup.category;
                 button.textContent = categoryGroup.category;
-                // Add event listener directly here
                 button.addEventListener('click', () => filterProblems(categoryGroup.category));
                 filterContainer.appendChild(button);
             });
-
-            // Add event listener for the 'All Categories' button
             document.querySelector('.filter-button[data-category="all"]').addEventListener('click', () => filterProblems('all'));
         }
 
         function filterProblems(selectedCategory) {
-            // Update the active state on buttons
             document.querySelectorAll('.filter-button').forEach(button => {
                 button.classList.toggle('active', button.dataset.category === selectedCategory);
             });
-
-            // Decide which data to render
             const dataToRender = (selectedCategory === 'all')
                 ? allProblemsData
                 : allProblemsData.filter(group => group.category === selectedCategory);
-            
             renderProblems(dataToRender);
         }
 
         function renderProblems(dataToRender) {
             const problemsDisplay = document.getElementById('problems-display');
-            problemsDisplay.innerHTML = ''; // Clear existing content
+            problemsDisplay.innerHTML = '';
 
             if (!dataToRender || dataToRender.length === 0) {
                 problemsDisplay.innerHTML = '<p>No problems found for this category.</p>';
                 return;
             }
 
-            // A counter to create unique IDs for each problem element
             let problemIdCounter = 0;
-
             dataToRender.forEach(categoryGroup => {
                 const categorySection = document.createElement('div');
                 categorySection.className = 'category-section';
@@ -120,11 +99,21 @@
 
                     const hintId = `hint-${problemIdCounter}`;
                     const solutionId = `solution-${problemIdCounter}`;
-                    
-                    // Note: We are directly inserting the LaTeX strings.
-                    // MathJax will find them using the delimiters \(...\)
+                    const answerInputId = `answer-input-${problemIdCounter}`;
+
+                    const encodedSolution = btoa(problemObj.solution);
+
                     problemCard.innerHTML = `
                         <p class="problem-statement"><strong>Problem:</strong> ${problemObj.problem}</p>
+                        
+                        <div class="user-answer-section">
+                            <label for="${answerInputId}">Your Answer:</label>
+                            <textarea id="${answerInputId}" class="user-answer-input" rows="3" placeholder="e.g., 2x + cos(x)"></textarea>
+                            <button class="submit-answer-button" onclick="handleSubmitAnswer('${answerInputId}', '${encodedSolution}')">Submit Answer</button>
+                            <button class="clear-answer-button" onclick="clearAnswer('${answerInputId}')">Clear</button>
+                            <div id="feedback-${answerInputId}" class="answer-feedback"></div>
+                        </div>
+
                         ${problemObj.hint ? `<button class="toggle-button" onclick="toggleVisibility(this, '${hintId}')">Show Hint</button>` : ''}
                         <button class="toggle-button" onclick="toggleVisibility(this, '${solutionId}')">Show Solution</button>
                         ${problemObj.hint ? `<div id="${hintId}" class="hidden hint-content"><p><strong>Hint:</strong> ${problemObj.hint}</p></div>` : ''}
@@ -136,8 +125,6 @@
                 problemsDisplay.appendChild(categorySection);
             });
 
-            // 2. CRITICAL STEP: After updating the HTML, tell MathJax to render it.
-            // Use 'typesetPromise' which is the modern standard for MathJax v3.
             MathJax.typesetPromise([problemsDisplay]).catch(err => console.log('MathJax Typeset Error: ', err));
         }
 
@@ -148,6 +135,55 @@
                 button.textContent = isHidden ? button.textContent.replace('Hide', 'Show') : button.textContent.replace('Show', 'Hide');
             }
         }
+
+
+        function normalizeAnswer(str) {
+            if (!str) return '';
+            return str
+                .toLowerCase()
+                .replace(/\s+/g, '')
+                .replace(/\\/g, '')
+                .replace(/\{/g, '(')
+                .replace(/\}/g, ')');
+        }
+
+
+        function handleSubmitAnswer(answerInputId, encodedSolution) {
+            const answerInput = document.getElementById(answerInputId);
+            const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
+
+            const solution = atob(encodedSolution);
+            const userAnswer = answerInput.value;
+
+            feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
+
+            if (userAnswer.trim() === '') {
+                feedbackDiv.textContent = 'Please type an answer.';
+                feedbackDiv.classList.add('feedback-incorrect');
+                return;
+            }
+
+            const normalizedUserAnswer = normalizeAnswer(userAnswer);
+            const normalizedSolution = normalizeAnswer(solution);
+
+            if (normalizedUserAnswer === normalizedSolution) {
+                feedbackDiv.textContent = 'Correct! Great job!';
+                feedbackDiv.classList.add('feedback-correct');
+            } else {
+                feedbackDiv.textContent = 'Not quite. Try simplifying or check your work.';
+                feedbackDiv.classList.add('feedback-incorrect');
+            }
+        }
+
+        function clearAnswer(answerInputId) {
+            const answerInput = document.getElementById(answerInputId);
+            const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
+
+            answerInput.value = '';
+            feedbackDiv.innerHTML = '';
+            feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
+        }
     </script>
 </body>
+
 </html>
