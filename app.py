@@ -1,177 +1,216 @@
-import re
-from flask import Flask, render_template, jsonify
+#!/usr/bin/env python
+import os
+import argparse
+from pathlib import Path
+import warnings
+import pandas as pd
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from matplotlib.patches import ConnectionPatch, Circle
 
-app = Flask(__name__)
+# --- CONFIGURATION ---
+CURRENT_FOLDER = Path(__file__).parent.resolve()
+PIPELINE_OUTPUT_DIRECTORY = Path(f"{CURRENT_FOLDER}_1")
+MAX_EPOCHS_PER_MOSAIC = 15
+TARGET_CLASSIFICATIONS = ['Gold', 'Silver', 'Bronze']
+APERTURE_RADIUS_PIXELS = 6 # Radius of the yellow circle to draw on images
 
-def find_balanced_content(text, start_index):
+# Map classifications to colors for highlighting in plot titles
+CLASSIFICATION_COLORS = {
+    'Gold': 'gold',
+    'Silver': 'silver',
+    'Bronze': '#CD7F32'
+}
+
+# --- CORE FUNCTIONS ---
+
+def get_visual_paths(base_folder: Path, row: pd.Series) -> dict:
     """
-    Given a string and a starting index pointing to an opening brace '{',
-    this function finds the content until the corresponding closing brace '}'.
-    It correctly handles nested braces.
-    Returns the content (excluding braces) and the index immediately after
-    the closing brace.
+    Constructs paths for the essential science and difference visual PNGs.
     """
-    if start_index >= len(text) or text[start_index] != '{':
-        return None, -1
-
-    brace_level = 1
-    current_index = start_index + 1
-    while current_index < len(text):
-        char = text[current_index]
-        if char == '{':
-            brace_level += 1
-        elif char == '}':
-            brace_level -= 1
-        
-        if brace_level == 0:
-            return text[start_index + 1 : current_index], current_index + 1
-            
-        current_index += 1
-    
-    return None, -1
-
-
-def parse_latex(file_path):
+    paths = {'sci': None, 'diff': None}
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-    except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        return []
-
-    problem_start_regex = re.compile(r'\\begin{problem}')
-    grouped_problems = {}
-    current_pos = 0
-
-    while True:
-        match = problem_start_regex.search(content, current_pos)
-        if not match:
-            break
-
-        brace1_start = match.end()
-        category_raw, after_category_pos = find_balanced_content(content, brace1_start)
-        if category_raw is None:
-            current_pos = match.end() + 1
-            continue
+        object_name = row['object_name']
+        filter_name = row['filter']
+        frame_id = int(row['frame_id'])
         
-        brace2_start = after_category_pos
-        problem_statement_raw, after_problem_statement_pos = find_balanced_content(content, brace2_start)
-        if problem_statement_raw is None:
-            current_pos = after_category_pos + 1
-            continue
-
-        category = category_raw.strip()
-        problem_statement = problem_statement_raw.strip()
+        visual_base = base_folder / object_name / "visuals" / filter_name
         
-        end_problem_match = re.search(r'\\end{problem}', content[after_problem_statement_pos:], re.DOTALL)
-        if not end_problem_match:
-            current_pos = after_problem_statement_pos + 1
-            continue
+        sci_path = visual_base / "science_frames" / f"frame_{frame_id}.png"
+        diff_path = visual_base / "difference_frames" / f"frame_{frame_id}.png"
+        
+        if sci_path.exists(): paths['sci'] = sci_path
+        if diff_path.exists(): paths['diff'] = diff_path
             
-        inner_content_start = after_problem_statement_pos
-        inner_content = content[inner_content_start : inner_content_start + end_problem_match.start()]
+    except (KeyError, ValueError, TypeError):
+        pass
         
-        hint, solution = '', ''
+    return paths
 
-        hint_start_tag = r'\hint{'
-        hint_pos = inner_content.find(hint_start_tag)
-        if hint_pos != -1:
-            content_start = hint_pos + len(hint_start_tag)
-            hint_text, _ = find_balanced_content(inner_content, content_start - 1)
-            if hint_text is not None:
-                hint = hint_text.strip()
 
-        solution_start_tag = r'\solution{'
-        solution_pos = inner_content.find(solution_start_tag)
-        if solution_pos != -1:
-            content_start = solution_pos + len(solution_start_tag)
-            solution_text, _ = find_balanced_content(inner_content, content_start - 1)
-            if solution_text is not None:
-                solution = solution_text.strip()
+def generate_variability_mosaic(dataframe: pd.DataFrame, object_folder: Path, title: str, output_path: Path):
+    """
+    Creates a 2-panel chronological mosaic with simple, straight arrows
+    connecting the date labels and a circle showing the measurement aperture.
+    """
+    if dataframe.empty:
+        tqdm.write(f"      - No detections to generate mosaic for '{title}'. Skipping.")
+        return
 
-        if category not in grouped_problems:
-            grouped_problems[category] = []
-            
-        grouped_problems[category].append({
-            'problem': problem_statement,
-            'hint': hint,
-            'solution': solution
-        })
-
-        current_pos = inner_content_start + end_problem_match.end()
-
-    # --- UPDATED GROUPING LOGIC ---
-
-    # 1. Define the super-categories and the mapping from old to new
-    category_map = {
-        # Super Category 1: Basic Differentiation
-        'By Definition of Derivative': 'Basic Differentiation',
-        'Basic Differentiation Identities': 'Basic Differentiation',
-        'Power Rule + e^x': 'Basic Differentiation',
-        'Derivatives of the Form a^x': 'Basic Differentiation',
-
-        # Super Category 2: Trig Review
-        'Trig Simplification': 'Trig Review', # NEW
-
-        # Super Category 3: Product, Quotient, & Chain Rules
-        'Product and Quotient Rule': 'Product, Quotient, & Chain Rules',
-        'Easy Chain Rule': 'Product, Quotient, & Chain Rules',
-        'Slightly Harder Chain Rule': 'Product, Quotient, & Chain Rules',
-
-        # Super Category 4: Trig Identities
-        'QUICK TRIG': 'Trig Identities', # MOVED
-        'Trig Identities - Easy': 'Trig Identities',
-        'Trig Identities - Medium': 'Trig Identities',
-        'Trig Identities - Hard': 'Trig Identities',
-        'Trig Identities - Harder': 'Trig Identities',
-
-        # Super Category 5: General Review
-        'haha good luck': 'General Review',
-        "I'm sorry in advance": 'General Review',
-        'Summary (Easy)': 'General Review',
-        'Summary (Medium)': 'General Review',
-        'More General Practice': 'General Review', # NEW
-        'Pretty Hard': 'General Review', # NEW
-        'Yay Good luck': 'General Review' # NEW
-    }
-
-    # 2. Define the desired order for the super-categories
-    super_category_order = [
-        'Basic Differentiation',
-        'Trig Review',
-        'Product, Quotient, & Chain Rules',
-        'Trig Identities',
-        'General Review'
-    ]
+    n_epochs = len(dataframe)
+    ncols = 2
     
-    # 3. Initialize the new data structure, preserving the order
-    final_grouped_problems = {name: [] for name in super_category_order}
-
-    # 4. Populate the new structure with problems from the old structure
-    for original_cat, problems_list in grouped_problems.items():
-        super_cat_name = category_map.get(original_cat)
-        if super_cat_name:
-            final_grouped_problems[super_cat_name].extend(problems_list)
-        else:
-            print(f"Warning: Original category '{original_cat}' has no mapping and will be ignored.")
+    fig, axes = plt.subplots(n_epochs, ncols, figsize=(10, 4 * n_epochs), facecolor='darkgray')
     
-    # 5. Convert the final dictionary to the list format the frontend expects
-    output_list = []
-    for super_cat_name, problems_list in final_grouped_problems.items():
-        if problems_list: # Only add categories that have problems
-            output_list.append({
-                'category': super_cat_name,
-                'problems': problems_list
-            })
+    if n_epochs == 1:
+        axes = axes.reshape(1, -1)
+
+    for i, (idx, row) in enumerate(dataframe.iterrows()):
+        ax_sci, ax_diff = axes[i, 0], axes[i, 1]
+        
+        image_paths = get_visual_paths(object_folder.parent, row)
+
+        for ax, img_type in zip([ax_sci, ax_diff], ['sci', 'diff']):
+            path = image_paths[img_type]
+            if path:
+                try:
+                    img = mpimg.imread(path)
+                    ax.imshow(img)
+                    center_y, center_x = img.shape[0] / 2, img.shape[1] / 2
+
+                    aperture_circle = Circle(
+                        (center_x, center_y),
+                        radius=APERTURE_RADIUS_PIXELS,
+                        facecolor='none',
+                        edgecolor='yellow',
+                        linewidth=1.5,
+                        linestyle='--'
+                    )
+                    ax.add_patch(aperture_circle)
+
+                    ax.plot(center_x, center_y, '+', color='red', markersize=12, markeredgewidth=1.5)
+
+                except Exception as e:
+                    ax.text(0.5, 0.5, "Error\nLoading", ha='center', va='center', color='red')
+            else:
+                ax.set_facecolor('black')
+                ax.text(0.5, 0.5, "Image\nNot Found", ha='center', va='center', color='white')
             
-    return output_list
+            ax.set_xticks([])
+            ax.set_yticks([])
+
+        if i == 0:
+            ax_sci.set_title("Science", color='white', fontweight='bold')
+            ax_diff.set_title("Difference", color='white', fontweight='bold')
+        
+        classification = row['classification']
+        mag = row['forcediffim_mag']
+        jd = row['jd']
+        label_color = CLASSIFICATION_COLORS.get(classification, 'white')
+        row_label_text = f"JD: {jd:.2f}\nMag: {mag:.2f}\n({classification})"
+        
+        y_pos = axes[i, 0].get_position().y0 + axes[i, 0].get_position().height / 2
+        fig.text(0.15, y_pos, row_label_text, color=label_color, fontsize=12, 
+                 fontweight='bold', ha='center', va='center')
+
+        if i > 0:
+            delta_jd = jd - dataframe.iloc[i-1]['jd']
+            y_prev = axes[i-1, 0].get_position().y0 + axes[i-1, 0].get_position().height / 2
+            
+            xyA = (0.05, y_prev)
+            xyB = (0.05, y_pos)
+
+            # --- MODIFIED: Use a simple, straight arrow ---
+            arrow = ConnectionPatch(
+                xyA=xyA, xyB=xyB, coordsA="figure fraction", coordsB="figure fraction",
+                arrowstyle="->,head_length=10,head_width=6", # A normal arrow
+                color="red", linewidth=2
+            )
+            fig.add_artist(arrow)
+
+            mid_y = (y_pos + y_prev) / 2
+            fig.text(0.06, mid_y, f"+{delta_jd:.1f} d", ha='left', va='center', 
+                     color='white', fontsize=10, 
+                     bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
+
+    plt.subplots_adjust(left=0.3, right=0.98, top=0.95, bottom=0.02, hspace=0.4)
+    fig.suptitle(title, fontsize=20, color='white')
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, dpi=150, bbox_inches='tight', facecolor='darkgray')
+    plt.close(fig)
 
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+def create_mosaics_for_object(obj_folder: Path):
+    object_name = obj_folder.name
+    tqdm.write(f"\n--- Processing Mosaics for {object_name} ---")
+    
+    report_path = obj_folder / "analysis" / f"{object_name}_frame_report.csv"
+    if not report_path.exists():
+        tqdm.write(f"No frame report found for {object_name}. Skipping.")
+        return
 
-@app.route('/get-problems')
-def get_problems():
-    problems_data = parse_latex('General_Derivative.txt')
-    return jsonify(problems_data)
+    try:
+        df_report = pd.read_csv(report_path)
+        df_report['forcediffim_mag'] = pd.to_numeric(df_report['forcediffim_mag'], errors='coerce')
+        df_report.dropna(subset=['forcediffim_mag', 'jd'], inplace=True)
+    except (pd.errors.EmptyDataError, KeyError):
+        tqdm.write(f"Frame report for {object_name} is empty or invalid. Skipping.")
+        return
+        
+    for band_filter, group_df in df_report.groupby('filter'):
+        band_code = str(band_filter).split('_')[-1]
+        tqdm.write(f"  - Analyzing filter: {band_code}")
+
+        df_high_confidence = group_df[group_df['classification'].isin(TARGET_CLASSIFICATIONS)].copy()
+
+        if df_high_confidence.empty:
+            tqdm.write(f"    - No high-confidence detections for filter {band_code}. Skipping.")
+            continue
+
+        df_chronological = df_high_confidence.sort_values(by='jd').head(MAX_EPOCHS_PER_MOSAIC)
+        
+        tqdm.write(f"    - Found {len(df_chronological)} epochs to create variability mosaic.")
+
+        mosaic_folder = obj_folder / "analysis" / "mosaics"
+        output_path = mosaic_folder / f"{object_name}_{band_code}_variability_mosaic.png"
+        title = f"Variability Check: {object_name} ({band_code}-band)"
+
+        generate_variability_mosaic(
+            dataframe=df_chronological,
+            object_folder=obj_folder,
+            title=title,
+            output_path=output_path
+        )
+        tqdm.write(f"    - Variability mosaic saved in: {mosaic_folder}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Assemble chronological mosaics for visual variability verification.")
+    parser.add_argument("--input_dir", default=PIPELINE_OUTPUT_DIRECTORY, type=Path, help=f"Path to the main pipeline output directory (default: {PIPELINE_OUTPUT_DIRECTORY})")
+    args = parser.parse_args()
+    input_dir = args.input_dir
+    
+    if not input_dir.exists() or not input_dir.is_dir():
+        print(f"ERROR: Input directory not found at '{input_dir}'")
+        return
+    
+    print(f"\n--- Generating Chronological Variability Mosaics ---")
+    print(f"Scanning for reports in: {input_dir}")
+
+    object_folders = sorted([d for d in input_dir.iterdir() if d.is_dir() and d.name.startswith('SMDG')])
+    if not object_folders:
+        print("No valid object folders (starting with 'SMDG') found."); return
+    print(f"Found {len(object_folders)} objects to process.")
+
+    for obj_folder in tqdm(object_folders, desc="Processing Objects", unit="object"):
+        create_mosaics_for_object(obj_folder)
+
+    print("\n--- All Mosaics Generated! ---")
+
+if __name__ == "__main__":
+    warnings.filterwarnings('ignore', category=UserWarning)
+    import matplotlib
+    matplotlib.use("Agg")
+    main()
