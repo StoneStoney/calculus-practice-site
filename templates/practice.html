@@ -1,189 +1,150 @@
-<!DOCTYPE html>
-<html lang="en">
+<script>
+    let allProblemsData = [];
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculus Practice</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/get-problems')
+            .then(response => response.ok ? response.json() : Promise.reject(response))
+            .then(data => {
+                allProblemsData = data;
+                renderCategoryFilter(allProblemsData);
+                renderProblems(allProblemsData);
+            })
+            .catch(error => {
+                console.error('Error fetching problems:', error);
+                document.getElementById('problems-display').innerHTML = '<p class="error-message">Failed to load problems.</p>';
+            });
+    });
 
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['\\(', '\\)']],
-                displayMath: [['\\[', '\\]']]
-            },
-            svg: {
-                fontCache: 'global'
-            }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</head>
+    function renderCategoryFilter(data) {
+        const filterContainer = document.getElementById('category-filter');
+        data.forEach(categoryGroup => {
+            const button = document.createElement('button');
+            button.className = 'filter-button';
+            button.dataset.category = categoryGroup.category;
+            button.textContent = categoryGroup.category;
+            button.addEventListener('click', () => filterProblems(categoryGroup.category));
+            filterContainer.appendChild(button);
+        });
+        document.querySelector('.filter-button[data-category="all"]').addEventListener('click', () => filterProblems('all'));
+    }
 
-<body>
-    <div class="container">
-        <h1>Calculus Practice Midterm Review</h1>
-        <p>Select a category to practice problems. Type your answer and click "Submit" to check your work.</p>
+    function filterProblems(selectedCategory) {
+        document.querySelectorAll('.filter-button').forEach(button => {
+            button.classList.toggle('active', button.dataset.category === selectedCategory);
+        });
+        const dataToRender = (selectedCategory === 'all')
+            ? allProblemsData
+            : allProblemsData.filter(group => group.category === selectedCategory);
+        renderProblems(dataToRender);
+    }
 
-        <div id="category-filter">
-            <button class="filter-button active" data-category="all">All Categories</button>
-        </div>
+    function renderProblems(dataToRender) {
+        const problemsDisplay = document.getElementById('problems-display');
+        problemsDisplay.innerHTML = '';
 
-        <div id="problems-display">
-            <p class="loading-message">Loading problems...</p>
-        </div>
-    </div>
+        if (!dataToRender || dataToRender.length === 0) {
+            problemsDisplay.innerHTML = '<p>No problems found for this category.</p>';
+            return;
+        }
 
-    <script>
-        let allProblemsData = [];
+        let problemIdCounter = 0;
+        dataToRender.forEach(categoryGroup => {
+            const categorySection = document.createElement('div');
+            categorySection.className = 'category-section';
 
-        document.addEventListener('DOMContentLoaded', function () {
-            fetch('/get-problems')
-                .then(response => response.ok ? response.json() : Promise.reject(response))
-                .then(data => {
-                    allProblemsData = data;
-                    renderCategoryFilter(allProblemsData);
-                    renderProblems(allProblemsData);
-                })
-                .catch(error => {
-                    console.error('Error fetching problems:', error);
-                    document.getElementById('problems-display').innerHTML = '<p class="error-message">Failed to load problems.</p>';
-                });
+            const categoryTitle = document.createElement('h2');
+            categoryTitle.textContent = categoryGroup.category;
+            categorySection.appendChild(categoryTitle);
+
+            categoryGroup.problems.forEach(problemObj => {
+                const problemCard = document.createElement('div');
+                problemCard.className = 'problem-card';
+
+                const hintId = `hint-${problemIdCounter}`;
+                const solutionId = `solution-${problemIdCounter}`;
+                const answerInputId = `answer-input-${problemIdCounter}`;
+
+                const encodedAnswer = btoa(problemObj.answer);
+
+                problemCard.innerHTML = `
+                    <p class="problem-statement"><strong>Problem:</strong> ${problemObj.problem}</p>
+                    
+                    <div class="user-answer-section">
+                        <label for="${answerInputId}">Your Answer:</label>
+                        <textarea id="${answerInputId}" class="user-answer-input" rows="3" placeholder="e.g., 2x + cos(x)"></textarea>
+                        
+                        <!-- Pass the encoded 'answer' here, not the 'solution' -->
+                        <button class="submit-answer-button" onclick="handleSubmitAnswer('${answerInputId}', '${encodedAnswer}')">Submit Answer</button>
+
+                        <button class="clear-answer-button" onclick="clearAnswer('${answerInputId}')">Clear</button>
+                        <div id="feedback-${answerInputId}" class="answer-feedback"></div>
+                    </div>
+
+                    ${problemObj.hint ? `<button class="toggle-button" onclick="toggleVisibility(this, '${hintId}')">Show Hint</button>` : ''}
+                    <button class="toggle-button" onclick="toggleVisibility(this, '${solutionId}')">Show Solution</button>
+                    ${problemObj.hint ? `<div id="${hintId}" class="hidden hint-content"><p><strong>Hint:</strong> ${problemObj.hint}</p></div>` : ''}
+                    <div id="${solutionId}" class="hidden solution-content"><p><strong>Solution:</strong> ${problemObj.solution}</p></div>
+                `;
+                categorySection.appendChild(problemCard);
+                problemIdCounter++;
+            });
+            problemsDisplay.appendChild(categorySection);
         });
 
-        function renderCategoryFilter(data) {
-            const filterContainer = document.getElementById('category-filter');
-            data.forEach(categoryGroup => {
-                const button = document.createElement('button');
-                button.className = 'filter-button';
-                button.dataset.category = categoryGroup.category;
-                button.textContent = categoryGroup.category;
-                button.addEventListener('click', () => filterProblems(categoryGroup.category));
-                filterContainer.appendChild(button);
-            });
-            document.querySelector('.filter-button[data-category="all"]').addEventListener('click', () => filterProblems('all'));
+        MathJax.typesetPromise([problemsDisplay]).catch(err => console.log('MathJax Typeset Error: ', err));
+    }
+
+    function toggleVisibility(button, elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            const isHidden = element.classList.toggle('hidden');
+            button.textContent = isHidden ? button.textContent.replace('Hide', 'Show') : button.textContent.replace('Show', 'Hide');
+        }
+    }
+
+    function normalizeAnswer(str) {
+        if (!str) return '';
+        return str
+            .toLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/\\/g, '')
+            .replace(/\{/g, '(')
+            .replace(/\}/g, ')');
+    }
+
+    function handleSubmitAnswer(answerInputId, encodedAnswer) {
+        const answerInput = document.getElementById(answerInputId);
+        const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
+
+        const correctAnswer = atob(encodedAnswer);
+        const userAnswer = answerInput.value;
+
+        feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
+
+        if (userAnswer.trim() === '') {
+            feedbackDiv.textContent = 'Please type an answer.';
+            feedbackDiv.classList.add('feedback-incorrect');
+            return;
         }
 
-        function filterProblems(selectedCategory) {
-            document.querySelectorAll('.filter-button').forEach(button => {
-                button.classList.toggle('active', button.dataset.category === selectedCategory);
-            });
-            const dataToRender = (selectedCategory === 'all')
-                ? allProblemsData
-                : allProblemsData.filter(group => group.category === selectedCategory);
-            renderProblems(dataToRender);
+        const normalizedUserAnswer = normalizeAnswer(userAnswer);
+        const normalizedCorrectAnswer = normalizeAnswer(correctAnswer);
+
+        if (normalizedUserAnswer === normalizedCorrectAnswer) {
+            feedbackDiv.textContent = 'Correct! Great job!';
+            feedbackDiv.classList.add('feedback-correct');
+        } else {
+            feedbackDiv.textContent = 'Not quite. Try simplifying or check your work.';
+            feedbackDiv.classList.add('feedback-incorrect');
         }
+    }
 
-        function renderProblems(dataToRender) {
-            const problemsDisplay = document.getElementById('problems-display');
-            problemsDisplay.innerHTML = '';
+    function clearAnswer(answerInputId) {
+        const answerInput = document.getElementById(answerInputId);
+        const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
 
-            if (!dataToRender || dataToRender.length === 0) {
-                problemsDisplay.innerHTML = '<p>No problems found for this category.</p>';
-                return;
-            }
-
-            let problemIdCounter = 0;
-            dataToRender.forEach(categoryGroup => {
-                const categorySection = document.createElement('div');
-                categorySection.className = 'category-section';
-
-                const categoryTitle = document.createElement('h2');
-                categoryTitle.textContent = categoryGroup.category;
-                categorySection.appendChild(categoryTitle);
-
-                categoryGroup.problems.forEach(problemObj => {
-                    const problemCard = document.createElement('div');
-                    problemCard.className = 'problem-card';
-
-                    const hintId = `hint-${problemIdCounter}`;
-                    const solutionId = `solution-${problemIdCounter}`;
-                    const answerInputId = `answer-input-${problemIdCounter}`;
-
-                    const encodedSolution = btoa(problemObj.solution);
-
-                    problemCard.innerHTML = `
-                        <p class="problem-statement"><strong>Problem:</strong> ${problemObj.problem}</p>
-                        
-                        <div class="user-answer-section">
-                            <label for="${answerInputId}">Your Answer:</label>
-                            <textarea id="${answerInputId}" class="user-answer-input" rows="3" placeholder="e.g., 2x + cos(x)"></textarea>
-                            <button class="submit-answer-button" onclick="handleSubmitAnswer('${answerInputId}', '${encodedSolution}')">Submit Answer</button>
-                            <button class="clear-answer-button" onclick="clearAnswer('${answerInputId}')">Clear</button>
-                            <div id="feedback-${answerInputId}" class="answer-feedback"></div>
-                        </div>
-
-                        ${problemObj.hint ? `<button class="toggle-button" onclick="toggleVisibility(this, '${hintId}')">Show Hint</button>` : ''}
-                        <button class="toggle-button" onclick="toggleVisibility(this, '${solutionId}')">Show Solution</button>
-                        ${problemObj.hint ? `<div id="${hintId}" class="hidden hint-content"><p><strong>Hint:</strong> ${problemObj.hint}</p></div>` : ''}
-                        <div id="${solutionId}" class="hidden solution-content"><p><strong>Solution:</strong> ${problemObj.solution}</p></div>
-                    `;
-                    categorySection.appendChild(problemCard);
-                    problemIdCounter++;
-                });
-                problemsDisplay.appendChild(categorySection);
-            });
-
-            MathJax.typesetPromise([problemsDisplay]).catch(err => console.log('MathJax Typeset Error: ', err));
-        }
-
-        function toggleVisibility(button, elementId) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                const isHidden = element.classList.toggle('hidden');
-                button.textContent = isHidden ? button.textContent.replace('Hide', 'Show') : button.textContent.replace('Show', 'Hide');
-            }
-        }
-
-
-        function normalizeAnswer(str) {
-            if (!str) return '';
-            return str
-                .toLowerCase()
-                .replace(/\s+/g, '')
-                .replace(/\\/g, '')
-                .replace(/\{/g, '(')
-                .replace(/\}/g, ')');
-        }
-
-
-        function handleSubmitAnswer(answerInputId, encodedSolution) {
-            const answerInput = document.getElementById(answerInputId);
-            const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
-
-            const solution = atob(encodedSolution);
-            const userAnswer = answerInput.value;
-
-            feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
-
-            if (userAnswer.trim() === '') {
-                feedbackDiv.textContent = 'Please type an answer.';
-                feedbackDiv.classList.add('feedback-incorrect');
-                return;
-            }
-
-            const normalizedUserAnswer = normalizeAnswer(userAnswer);
-            const normalizedSolution = normalizeAnswer(solution);
-
-            if (normalizedUserAnswer === normalizedSolution) {
-                feedbackDiv.textContent = 'Correct! Great job!';
-                feedbackDiv.classList.add('feedback-correct');
-            } else {
-                feedbackDiv.textContent = 'Not quite. Try simplifying or check your work.';
-                feedbackDiv.classList.add('feedback-incorrect');
-            }
-        }
-
-        function clearAnswer(answerInputId) {
-            const answerInput = document.getElementById(answerInputId);
-            const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
-
-            answerInput.value = '';
-            feedbackDiv.innerHTML = '';
-            feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
-        }
-    </script>
-</body>
-
-</html>
+        answerInput.value = '';
+        feedbackDiv.innerHTML = '';
+        feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
+    }
+</script>
