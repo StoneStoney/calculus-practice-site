@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculus Practice</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    
+
     <script>
         MathJax = {
             tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
@@ -13,14 +14,16 @@
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.min.js"></script>
 
 </head>
+
 <body>
     <div class="container">
         <h1>Calculus Practice Midterm Review</h1>
-        <p>Select a category to practice problems. Type your answer and click "Submit" to check your work. Mathematically equivalent answers are accepted!</p>
+        <p>Select a category to practice problems. Type your answer and click "Submit" to check your work.
+            Mathematically equivalent answers are accepted!</p>
 
         <div id="category-filter">
             <button class="filter-button active" data-category="all">All Categories</button>
@@ -73,7 +76,7 @@
 
         function renderProblems(dataToRender) {
             const problemsDisplay = document.getElementById('problems-display');
-            problemsDisplay.innerHTML = ''; 
+            problemsDisplay.innerHTML = '';
 
             if (!dataToRender || dataToRender.length === 0) {
                 problemsDisplay.innerHTML = '<p>No problems found for this category.</p>';
@@ -117,7 +120,7 @@
                 });
                 problemsDisplay.appendChild(categorySection);
             });
-            
+
             MathJax.typesetPromise([problemsDisplay]).catch(err => console.log('MathJax Typeset Error: ', err));
         }
 
@@ -132,9 +135,9 @@
         function handleSubmitAnswer(answerInputId, encodedAnswer) {
             const answerInput = document.getElementById(answerInputId);
             const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
-            
+
             const correctAnswer = atob(encodedAnswer);
-            const userAnswer = answerInput.value;
+            let userAnswer = answerInput.value;
 
             feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
 
@@ -143,6 +146,9 @@
                 feedbackDiv.classList.add('feedback-incorrect');
                 return;
             }
+
+            userAnswer = userAnswer.replace(/([a-zA-Z0-9])([a-zA-Z])/g, '$1 * $2');
+            userAnswer = userAnswer.replace(/(\d)([a-zA-Z])/g, '$1 * $2');
 
             try {
                 const simplifiedUserAnswer = math.simplify(userAnswer).toString();
@@ -161,15 +167,15 @@
                 feedbackDiv.classList.add('feedback-incorrect');
             }
         }
-
         function clearAnswer(answerInputId) {
             const answerInput = document.getElementById(answerInputId);
             const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
-            
+
             answerInput.value = '';
             feedbackDiv.innerHTML = '';
             feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
         }
     </script>
 </body>
+
 </html>
