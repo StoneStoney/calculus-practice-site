@@ -16,40 +16,94 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.min.js"></script>
-
 </head>
 
 <body>
     <div class="container">
-        <h1>Calculus Practice Midterm Review</h1>
-        <p>Select a category to practice problems. Type your answer and click "Submit" to check your work.
-            Mathematically equivalent answers are accepted!</p>
+        <!-- Navigation Tabs -->
+        <div class="navigation-tabs">
+            <button id="tab-practice" class="tab-button active" onclick="loadProblemSet('practice')">Practice
+                Problems</button>
+            <button id="tab-quiz" class="tab-button" onclick="loadProblemSet('quiz')">Big Quiz Review</button>
+            <button id="tab-final" class="tab-button" onclick="loadProblemSet('final-review')">Final Exam
+                Review</button>
+        </div>
+
+        <h1 id="page-title"></h1>
+        <p id="page-intro"></p>
 
         <div id="category-filter">
-            <button class="filter-button active" data-category="all">All Categories</button>
+            <button class="filter-button active" data-category="all">Show All</button>
         </div>
 
         <div id="problems-display">
-            <p class="loading-message">Loading problems...</p>
+            <p>Loading problems...</p>
         </div>
     </div>
 
     <script>
-        let allProblemsData = [];
+        let currentProblemData = [];
 
         document.addEventListener('DOMContentLoaded', function () {
-            fetch('/get-problems')
+            loadProblemSet('practice');
+        });
+
+        function loadProblemSet(mode) {
+            const practiceTab = document.getElementById('tab-practice');
+            const quizTab = document.getElementById('tab-quiz');
+            const finalTab = document.getElementById('tab-final');
+            const titleEl = document.getElementById('page-title');
+            const introEl = document.getElementById('page-intro');
+            const problemsDisplay = document.getElementById('problems-display');
+            const filterContainer = document.getElementById('category-filter');
+
+            problemsDisplay.innerHTML = '<p>Loading...</p>';
+            filterContainer.innerHTML = '<button class="filter-button active" data-category="all">Show All</button>';
+
+            let endpoint = '';
+            if (mode === 'practice') {
+                titleEl.textContent = 'Calculus Practice Problems';
+                introEl.textContent = 'Problems parsed from General_Derivative.txt. Good luck!';
+                practiceTab.classList.add('active');
+                quizTab.classList.remove('active');
+                finalTab.classList.remove('active');
+                // This tab uses the LaTeX parser
+                endpoint = '/get-problems/General_Derivative';
+            } else if (mode === 'quiz') {
+                titleEl.textContent = 'Big Quiz Review';
+                introEl.textContent = 'Problems from bigquiz2.txt.';
+                practiceTab.classList.remove('active');
+                quizTab.classList.add('active');
+                finalTab.classList.remove('active');
+                // --- THIS IS THE KEY CHANGE ---
+                // This tab now uses the direct JSON reader for bigquiz2.txt
+                endpoint = '/get-json-problems/bigquiz2';
+            } else if (mode === 'final-review') {
+                titleEl.textContent = 'Final Exam Review';
+                introEl.textContent = 'A comprehensive set of problems covering all major topics.';
+                practiceTab.classList.remove('active');
+                quizTab.classList.remove('active');
+                finalTab.classList.add('active');
+                // This can use either parser. Let's assume it's LaTeX for now.
+                // If final_review.txt is JSON, change this to /get-json-problems/final_review
+                endpoint = '/get-problems/final_review';
+            }
+
+            fetch(endpoint)
                 .then(response => response.ok ? response.json() : Promise.reject(response))
                 .then(data => {
-                    allProblemsData = data;
-                    renderCategoryFilter(allProblemsData);
-                    renderProblems(allProblemsData);
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    currentProblemData = data;
+                    renderCategoryFilter(currentProblemData);
+                    renderProblems(currentProblemData);
                 })
                 .catch(error => {
-                    console.error('Error fetching problems:', error);
-                    document.getElementById('problems-display').innerHTML = '<p class="error-message">Failed to load problems.</p>';
+                    console.error('Error fetching or processing problems:', error);
+                    problemsDisplay.innerHTML = `<p class="error-message">Failed to load problems. ${error.message}</p>`;
                 });
-        });
+        }
 
         function renderCategoryFilter(data) {
             const filterContainer = document.getElementById('category-filter');
@@ -69,20 +123,18 @@
                 button.classList.toggle('active', button.dataset.category === selectedCategory);
             });
             const dataToRender = (selectedCategory === 'all')
-                ? allProblemsData
-                : allProblemsData.filter(group => group.category === selectedCategory);
+                ? currentProblemData
+                : currentProblemData.filter(group => group.category === selectedCategory);
             renderProblems(dataToRender);
         }
 
         function renderProblems(dataToRender) {
             const problemsDisplay = document.getElementById('problems-display');
             problemsDisplay.innerHTML = '';
-
             if (!dataToRender || dataToRender.length === 0) {
                 problemsDisplay.innerHTML = '<p>No problems found for this category.</p>';
                 return;
             }
-
             let problemIdCounter = 0;
             dataToRender.forEach(categoryGroup => {
                 const categorySection = document.createElement('div');
@@ -116,7 +168,6 @@
                 });
                 problemsDisplay.appendChild(categorySection);
             });
-
             MathJax.typesetPromise([problemsDisplay]).catch(err => console.log('MathJax Typeset Error: ', err));
         }
 
@@ -141,24 +192,18 @@
         function handleSubmitAnswer(answerInputId, encodedAnswer) {
             const answerInput = document.getElementById(answerInputId);
             const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
-
             const rawCorrectAnswer = atob(encodedAnswer);
             const userAnswer = answerInput.value;
-
             feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');
-
             if (userAnswer.trim() === '') {
                 feedbackDiv.textContent = 'Please type an answer.';
                 feedbackDiv.classList.add('feedback-incorrect');
                 return;
             }
-
             try {
                 const cleanCorrectAnswer = preProcessForMathJS(rawCorrectAnswer);
-
                 const simplifiedUserAnswer = math.simplify(userAnswer).toString();
                 const simplifiedCorrectAnswer = math.simplify(cleanCorrectAnswer).toString();
-
                 if (simplifiedUserAnswer === simplifiedCorrectAnswer) {
                     feedbackDiv.textContent = 'Correct! Great job!';
                     feedbackDiv.classList.add('feedback-correct');
@@ -176,7 +221,6 @@
         function clearAnswer(answerInputId) {
             const answerInput = document.getElementById(answerInputId);
             const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
-
             answerInput.value = '';
             feedbackDiv.innerHTML = '';
             feedbackDiv.classList.remove('feedback-correct', 'feedback-incorrect');

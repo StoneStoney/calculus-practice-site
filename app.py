@@ -1,9 +1,15 @@
 import re
+import json # <-- Make sure json is imported
 from flask import Flask, render_template, jsonify
+import os
 
 app = Flask(__name__)
 
+#==============================================================================
+# YOUR LATEX PARSER (Kept for files like General_Derivative.txt)
+#==============================================================================
 def find_balanced_content(text, start_index):
+    # ... (your find_balanced_content function is perfect, no changes)
     if start_index >= len(text) or text[start_index] != '{':
         return None, -1
     brace_level = 1
@@ -20,12 +26,13 @@ def find_balanced_content(text, start_index):
     return None, -1
 
 def parse_latex(file_path):
+    # ... (your parse_latex function is also fine, no changes needed here)
+    # ... It will be used by the /get-problems/<filename> route
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
     except FileNotFoundError:
-        print(f"Error: The file {file_path} was not found.")
-        return []
+        return {"error": f"The problem file '{os.path.basename(file_path)}' was not found on the server."}
 
     problem_start_regex = re.compile(r'\\begin{problem}')
     grouped_problems = {}
@@ -84,6 +91,7 @@ def parse_latex(file_path):
             answer_text, _ = find_balanced_content(inner_content, content_start - 1)
             if answer_text is not None:
                 answer = answer_text.strip()
+        
         if not answer and solution:
              answer = solution
 
@@ -102,27 +110,65 @@ def parse_latex(file_path):
     category_map = { 'By Definition of Derivative': 'Basic Differentiation', 'Basic Differentiation Identities': 'Basic Differentiation', 'Power Rule + e^x': 'Basic Differentiation', 'Derivatives of the Form a^x': 'Basic Differentiation', 'Trig Simplification': 'Trig Review', 'Product and Quotient Rule': 'Product, Quotient, & Chain Rules', 'Easy Chain Rule': 'Product, Quotient, & Chain Rules', 'Slightly Harder Chain Rule': 'Product, Quotient, & Chain Rules', 'QUICK TRIG': 'Trig Identities', 'Trig Identities - Easy': 'Trig Identities', 'Trig Identities - Medium': 'Trig Identities', 'Trig Identities - Hard': 'Trig Identities', 'Trig Identities - Harder': 'Trig Identities', 'haha good luck': 'General Review', "I'm sorry in advance": 'General Review', 'Summary (Easy)': 'General Review', 'Summary (Medium)': 'General Review', 'More General Practice': 'General Review', 'Pretty Hard': 'General Review', 'Yay Good luck': 'General Review' }
     super_category_order = [ 'Basic Differentiation', 'Trig Review', 'Product, Quotient, & Chain Rules', 'Trig Identities', 'General Review' ]
     final_grouped_problems = {name: [] for name in super_category_order}
-    for original_cat, problems_list in grouped_problems.items():
-        super_cat_name = category_map.get(original_cat)
-        if super_cat_name:
-            final_grouped_problems[super_cat_name].extend(problems_list)
-        else:
-            print(f"Warning: Original category '{original_cat}' has no mapping and will be ignored.")
-    output_list = []
-    for super_cat_name, problems_list in final_grouped_problems.items():
-        if problems_list:
-            output_list.append({ 'category': super_cat_name, 'problems': problems_list })
+    
+    should_map_categories = os.path.basename(file_path) == 'General_Derivative.txt'
+
+    if should_map_categories:
+        for original_cat, problems_list in grouped_problems.items():
+            super_cat_name = category_map.get(original_cat)
+            if super_cat_name:
+                final_grouped_problems[super_cat_name].extend(problems_list)
+            else:
+                print(f"Warning: Original category '{original_cat}' has no mapping and will be ignored.")
+        
+        output_list = []
+        for super_cat_name, problems_list in final_grouped_problems.items():
+            if problems_list:
+                output_list.append({ 'category': super_cat_name, 'problems': problems_list })
+    else:
+        output_list = [{'category': cat, 'problems': prob_list} for cat, prob_list in grouped_problems.items()]
+
     return output_list
 
+
+#==============================================================================
+# FLASK ROUTES
+#==============================================================================
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return "<h1>Calculus Practice Site</h1><a href='/practice'>Go to Practice Page</a>"
 
 @app.route('/practice')
 def practice():
     return render_template('practice.html')
 
-@app.route('/get-problems')
-def get_problems():
-    problems_data = parse_latex('General_Derivative.txt')
+# This route is for files that need the LaTeX parser
+@app.route('/get-problems/<filename>')
+def get_problems_from_file(filename):
+    if '..' in filename or filename.startswith('/'):
+        return jsonify({"error": "Invalid filename."}), 400
+    file_path = f"{filename}.txt"
+    problems_data = parse_latex(file_path)
+    if isinstance(problems_data, dict) and "error" in problems_data:
+        return jsonify(problems_data), 404
     return jsonify(problems_data)
+
+# --- NEW ROUTE FOR YOUR JSON FILE ---
+# This route reads a file that is ALREADY in JSON format.
+@app.route('/get-json-problems/<filename>')
+def get_json_problems(filename):
+    if '..' in filename or filename.startswith('/'):
+        return jsonify({"error": "Invalid filename."}), 400
+    
+    file_path = f"{filename}.txt"
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except FileNotFoundError:
+        return jsonify({"error": f"{file_path} not found"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": f"Error decoding JSON from {file_path}. Check the file for syntax errors like missing commas or brackets."}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
