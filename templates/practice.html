@@ -67,7 +67,6 @@
                 practiceTab.classList.add('active');
                 quizTab.classList.remove('active');
                 finalTab.classList.remove('active');
-                // This tab uses the LaTeX parser
                 endpoint = '/get-problems/General_Derivative';
             } else if (mode === 'quiz') {
                 titleEl.textContent = 'Big Quiz Review';
@@ -75,8 +74,6 @@
                 practiceTab.classList.remove('active');
                 quizTab.classList.add('active');
                 finalTab.classList.remove('active');
-                // --- THIS IS THE KEY CHANGE ---
-                // This tab now uses the direct JSON reader for bigquiz2.txt
                 endpoint = '/get-json-problems/bigquiz2';
             } else if (mode === 'final-review') {
                 titleEl.textContent = 'Final Exam Review';
@@ -84,13 +81,18 @@
                 practiceTab.classList.remove('active');
                 quizTab.classList.remove('active');
                 finalTab.classList.add('active');
-                // This can use either parser. Let's assume it's LaTeX for now.
-                // If final_review.txt is JSON, change this to /get-json-problems/final_review
                 endpoint = '/get-problems/final_review';
             }
 
             fetch(endpoint)
-                .then(response => response.ok ? response.json() : Promise.reject(response))
+                .then(response => {
+                    // Check if the response was successful (status 200-299)
+                    if (!response.ok) {
+                        // If not, create a more descriptive error message
+                        throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json(); // If ok, proceed to parse JSON
+                })
                 .then(data => {
                     if (data.error) {
                         throw new Error(data.error);
@@ -100,10 +102,14 @@
                     renderProblems(currentProblemData);
                 })
                 .catch(error => {
+                    // --- THIS CATCH BLOCK IS NOW SMARTER ---
                     console.error('Error fetching or processing problems:', error);
+                    // Now error.message will be defined and useful
                     problemsDisplay.innerHTML = `<p class="error-message">Failed to load problems. ${error.message}</p>`;
                 });
         }
+
+        // --- NO OTHER FUNCTIONS BELOW THIS LINE NEED TO CHANGE ---
 
         function renderCategoryFilter(data) {
             const filterContainer = document.getElementById('category-filter');
