@@ -6,7 +6,8 @@ import os
 app = Flask(__name__)
 
 #==============================================================================
-# YOUR LATEX PARSER (Unchanged, it's perfect)
+# PARSER 1: For the original '\begin{problem}' format (Unchanged)
+# This is used for General_Derivative.txt
 #==============================================================================
 def find_balanced_content(text, start_index):
     if start_index >= len(text) or text[start_index] != '{':
@@ -24,7 +25,7 @@ def find_balanced_content(text, start_index):
         current_index += 1
     return None, -1
 
-def parse_latex(file_path):
+def parse_latex_problem_format(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -108,7 +109,61 @@ def parse_latex(file_path):
     return output_list
 
 #==============================================================================
-# FLASK ROUTES
+# PARSER 2: NEW parser for the '\begin{enumerate}' format
+# This will be used for bigquiz2.txt
+#==============================================================================
+def parse_enumerate_format(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        return {"error": f"The problem file '{os.path.basename(file_path)}' was not found on the server."}
+
+    # The entire file will be one category, taken from the \section*{...} tag
+    category_match = re.search(r'\\section\*\{([^}]+)\}', content)
+    category = category_match.group(1).strip() if category_match else "Quiz Problems"
+
+    problems = []
+    
+    # Split the content by \item, which separates each problem
+    # We ignore the first split as it's the content before the first \item
+    problem_blocks = content.split('\\item')[1:]
+
+    for block in problem_blocks:
+        # The problem statement is the first line
+        problem_statement = block.split(r'\par')[0].strip()
+
+        # Helper function to extract content using regex
+        def extract_field(pattern, text):
+            # This regex looks for the pattern (e.g., \textbf{Answer:}) and captures everything
+            # until the next \par or the end of the enumerate block.
+            match = re.search(pattern, text, re.DOTALL)
+            return match.group(1).strip() if match else ''
+
+        # Extract answer, solution, and hint
+        answer = extract_field(r'\\textbf{Answer:}(.*?)(?=\\par|\\end{enumerate})', block)
+        solution = extract_field(r'\\textbf{Solution:}(.*?)(?=\\par|\\end{enumerate})', block)
+        hint = extract_field(r'\\textbf{Hint:}(.*?)(?=\\par|\\end{enumerate})', block)
+        
+        # If no separate answer is found, use the solution as the answer
+        if not answer and solution:
+            answer = solution
+            
+        problems.append({
+            'problem': problem_statement,
+            'hint': hint,
+            'solution': solution,
+            'answer': answer
+        })
+
+    # The final output must match the structure your JavaScript expects: a list of category dictionaries
+    if not problems:
+        return [] # Return empty list if no problems were parsed
+        
+    return [{'category': category, 'problems': problems}]
+
+#==============================================================================
+# FLASK ROUTES (Updated to choose the correct parser)
 #==============================================================================
 @app.route('/')
 def home():
@@ -119,20 +174,37 @@ def practice():
     return render_template('practice.html')
 
 # --- THE ONE AND ONLY ROUTE FOR GETTING PROBLEMS ---
-# This single route will now handle ALL problem files using your parser.
+# This single route will now handle ALL problem files by choosing the right parser.
 @app.route('/get-problems/<filename>')
 def get_problems_from_file(filename):
     if '..' in filename or filename.startswith('/'):
         return jsonify({"error": "Invalid filename."}), 400
 
     file_path = f"{filename}.txt"
+    problems_data = None # Initialize to None
     
-    # ALWAYS use the parser. No more special cases.
-    problems_data = parse_latex(file_path)
+    # --- DISPATCHER: Choose the correct parser based on the filename ---
+    if filename == 'General_Derivative':
+        print(f"Using 'problem' format parser for {filename}")
+        problems_data = parse_latex_problem_format(file_path)
+    elif filename == 'bigquiz2':
+        print(f"Using 'enumerate' format parser for {filename}")
+        problems_data = parse_enumerate_format(file_path)
+    # You can add more files with custom formats here
+    # elif filename == 'final_review':
+    #     problems_data = parse_final_review_format(file_path)
+    else:
+        # A sensible default for any other files you might add
+        print(f"Warning: No specific parser for '{filename}'. Using default 'problem' parser.")
+        problems_data = parse_latex_problem_format(file_path)
 
     # Check if the parser returned a file-not-found error
     if isinstance(problems_data, dict) and "error" in problems_data:
         return jsonify(problems_data), 404
+    
+    # If parser found no problems but no error, return an empty list
+    if problems_data is None:
+        return jsonify([])
     
     return jsonify(problems_data)
 
