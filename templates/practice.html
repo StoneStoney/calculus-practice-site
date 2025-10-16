@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculus Practice</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
     <script>
         MathJax = {
             tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
@@ -14,13 +13,11 @@
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.min.js"></script>
 </head>
 
 <body>
     <div class="container">
-        <!-- Navigation Tabs -->
         <div class="navigation-tabs">
             <button id="tab-practice" class="tab-button active" onclick="loadProblemSet('practice')">Practice
                 Problems</button>
@@ -28,22 +25,17 @@
             <button id="tab-final" class="tab-button" onclick="loadProblemSet('final-review')">Final Exam
                 Review</button>
         </div>
-
         <h1 id="page-title"></h1>
         <p id="page-intro"></p>
-
         <div id="category-filter">
             <button class="filter-button active" data-category="all">Show All</button>
         </div>
-
         <div id="problems-display">
             <p>Loading problems...</p>
         </div>
     </div>
-
     <script>
         let currentProblemData = [];
-
         document.addEventListener('DOMContentLoaded', function () {
             loadProblemSet('practice');
         });
@@ -56,17 +48,17 @@
             const introEl = document.getElementById('page-intro');
             const problemsDisplay = document.getElementById('problems-display');
             const filterContainer = document.getElementById('category-filter');
-
             problemsDisplay.innerHTML = '<p>Loading...</p>';
             filterContainer.innerHTML = '<button class="filter-button active" data-category="all">Show All</button>';
-
             let endpoint = '';
+
             if (mode === 'practice') {
                 titleEl.textContent = 'Calculus Practice Problems';
                 introEl.textContent = 'Problems parsed from General_Derivative.txt. Good luck!';
                 practiceTab.classList.add('active');
                 quizTab.classList.remove('active');
                 finalTab.classList.remove('active');
+                // All tabs now call the same base URL
                 endpoint = '/get-problems/General_Derivative';
             } else if (mode === 'quiz') {
                 titleEl.textContent = 'Big Quiz Review';
@@ -74,24 +66,24 @@
                 practiceTab.classList.remove('active');
                 quizTab.classList.add('active');
                 finalTab.classList.remove('active');
-                endpoint = '/get-json-problems/bigquiz2';
+                // All tabs now call the same base URL
+                endpoint = '/get-problems/bigquiz2';
             } else if (mode === 'final-review') {
                 titleEl.textContent = 'Final Exam Review';
                 introEl.textContent = 'A comprehensive set of problems covering all major topics.';
                 practiceTab.classList.remove('active');
                 quizTab.classList.remove('active');
                 finalTab.classList.add('active');
+                // All tabs now call the same base URL
                 endpoint = '/get-problems/final_review';
             }
 
             fetch(endpoint)
                 .then(response => {
-                    // Check if the response was successful (status 200-299)
                     if (!response.ok) {
-                        // If not, create a more descriptive error message
                         throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
                     }
-                    return response.json(); // If ok, proceed to parse JSON
+                    return response.json();
                 })
                 .then(data => {
                     if (data.error) {
@@ -102,14 +94,13 @@
                     renderProblems(currentProblemData);
                 })
                 .catch(error => {
-                    // --- THIS CATCH BLOCK IS NOW SMARTER ---
                     console.error('Error fetching or processing problems:', error);
-                    // Now error.message will be defined and useful
                     problemsDisplay.innerHTML = `<p class="error-message">Failed to load problems. ${error.message}</p>`;
                 });
         }
 
-        // --- NO OTHER FUNCTIONS BELOW THIS LINE NEED TO CHANGE ---
+        // --- NO OTHER JAVASCRIPT FUNCTIONS NEED TO CHANGE ---
+        // (renderCategoryFilter, filterProblems, renderProblems, etc. are all the same)
 
         function renderCategoryFilter(data) {
             const filterContainer = document.getElementById('category-filter');
@@ -123,7 +114,6 @@
             });
             document.querySelector('.filter-button[data-category="all"]').addEventListener('click', () => filterProblems('all'));
         }
-
         function filterProblems(selectedCategory) {
             document.querySelectorAll('.filter-button').forEach(button => {
                 button.classList.toggle('active', button.dataset.category === selectedCategory);
@@ -133,7 +123,6 @@
                 : currentProblemData.filter(group => group.category === selectedCategory);
             renderProblems(dataToRender);
         }
-
         function renderProblems(dataToRender) {
             const problemsDisplay = document.getElementById('problems-display');
             problemsDisplay.innerHTML = '';
@@ -176,7 +165,6 @@
             });
             MathJax.typesetPromise([problemsDisplay]).catch(err => console.log('MathJax Typeset Error: ', err));
         }
-
         function toggleVisibility(button, elementId) {
             const element = document.getElementById(elementId);
             if (element) {
@@ -184,7 +172,6 @@
                 button.textContent = isHidden ? button.textContent.replace('Hide', 'Show') : button.textContent.replace('Show', 'Hide');
             }
         }
-
         function preProcessForMathJS(str) {
             if (!str) return '';
             return str
@@ -194,7 +181,6 @@
                 .replace(/\{/g, '(')
                 .replace(/\}/g, ')');
         }
-
         function handleSubmitAnswer(answerInputId, encodedAnswer) {
             const answerInput = document.getElementById(answerInputId);
             const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
@@ -223,7 +209,6 @@
                 feedbackDiv.classList.add('feedback-incorrect');
             }
         }
-
         function clearAnswer(answerInputId) {
             const answerInput = document.getElementById(answerInputId);
             const feedbackDiv = document.getElementById(`feedback-${answerInputId}`);
